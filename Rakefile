@@ -5,13 +5,12 @@ task :build do
 end
 
 desc "install the dormouse"
-task :install => :build do
-  require File.expand_path('../lib/dormouse/version', __FILE__)
+task :install => [:load_version, :build] do
   sh "gem install dormouse-#{Dormouse::VERSION}.gem"
 end
 
 desc "release the dormouse"
-task :release => :build do
+task :release => [:load_version, :build] do
   unless %x[ git status 2>&1 ].include?('nothing to commit (working directory clean)')
     puts "Your git stage is not clean!"
     exit(1)
@@ -27,4 +26,8 @@ task :release => :build do
   sh "git tag -a -m \"#{Dormouse::VERSION}\" #{Dormouse::VERSION}"
   sh "git push origin master"
   sh "git push origin master --tags"
+end
+
+task :load_version do
+  require File.expand_path('../lib/dormouse/version', __FILE__)
 end
