@@ -2,7 +2,7 @@ module Dormouse::Widgets
   
   class << self
     def [](name)
-      @widget_types[name.to_sym]
+      (@widget_types ||= {})[name.to_sym]
     end
     
     def []=(name, klass)

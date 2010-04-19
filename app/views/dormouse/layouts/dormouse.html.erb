@@ -4,11 +4,18 @@
   <title>Dormouse</title>
   <%= stylesheet_link_tag :all %>
   <%= javascript_include_tag :defaults %>
-  <%#= csrf_meta_tag %>
 </head>
 <body>
 
-<%= yield %>
+<ul id="menu">
+  <% Dormouse.menu.each do |item| %>
+    <li><%= link_to item.name, item.url %></li>
+  <% end %>
+</ul>
+
+<div id="content">
+  <%= yield %>
+</div>
 
 </body>
 </html>

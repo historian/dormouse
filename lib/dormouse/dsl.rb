@@ -23,6 +23,10 @@ class Dormouse::DSL
     @manifest.style = (name || 'dormouse')
   end
   
+  def menu(name, options={})
+    Dormouse::menu.register(name, @manifest, options)
+  end
+  
   # set the primary name for a model. The primary name is the name shown in lists, select boxes and grids as the link to the details.
   def primary_name(property)
     set(property, :primary => true)
