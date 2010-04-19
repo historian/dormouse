@@ -5,6 +5,7 @@ Features:
   - added basic list generation.
   - added basic form generation.
   - added basic menu infrastructure.
+  - added initial support for nested resources.
 
 Bugfixes:
 

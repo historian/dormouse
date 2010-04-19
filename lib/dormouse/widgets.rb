@@ -23,6 +23,8 @@ module Dormouse::Widgets
   require 'dormouse/widgets/float'
   require 'dormouse/widgets/decimal'
   require 'dormouse/widgets/timestamp'
+  
+  require 'dormouse/widgets/has_many'
   require 'dormouse/widgets/belongs_to'
   
 end

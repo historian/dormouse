@@ -82,6 +82,10 @@ class Dormouse::Manifest
     end
   end
   
+  def inspect
+    "#<#{self}: #{@resource}>"
+  end
+  
 private
   
   def generate_default_properties

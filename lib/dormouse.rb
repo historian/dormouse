@@ -6,6 +6,7 @@ module Dormouse
   require 'dormouse/property'
   require 'dormouse/dsl'
   require 'dormouse/menu'
+  require 'dormouse/tab'
   require 'dormouse/widgets'
   require 'dormouse/views'
   
