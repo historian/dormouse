@@ -2,6 +2,8 @@ class Dormouse::Manifest
   
   include Enumerable
   
+  COLLECTION_TYPES = [:list]
+  
   def initialize(resource)
     @resource   = resource
     @properties = {}
@@ -13,10 +15,17 @@ class Dormouse::Manifest
   attr_reader :resource, :order
   attr_accessor :primary_name_column, :secondary_name_column
   attr_accessor :collection_url, :object_url
-  attr_accessor :style
+  attr_accessor :style, :collection_type
   
   def mount(map)
     Dormouse::ActionController.build(self, map)
+  end
+  
+  def render_collection(controller, collection=nil)
+    case collection_type.to_sym
+    when :list then render_list(controller, collection)
+    when :grid then render_grid(controller, collection)
+    end
   end
   
   def render_list(controller, collection=nil)
@@ -50,6 +59,10 @@ class Dormouse::Manifest
   
   def style
     @style ||= 'dormouse'
+  end
+  
+  def collection_type
+    @collection_type ||= :list
   end
   
   def primary_name_column

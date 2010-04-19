@@ -56,7 +56,7 @@ module Dormouse::ActionController::Actions
   
   def index
     collection = (@parent ? @parent.__send__(@parent_association).all : nil)
-    manifest.render_list(self, collection)
+    manifest.render_collection(self, collection)
   end
   
   def show

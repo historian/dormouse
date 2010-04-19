@@ -21,6 +21,20 @@ class Dormouse::DSL
   # set the view style for this model. (The default style is :dormouse)
   def style(name)
     @manifest.style = (name || 'dormouse')
+    self
+  end
+  
+  # set the collection view type for this model. (The default type is :list)
+  def collection_type(type)
+    type = (type || :list).to_sym
+    
+    allowed_types = Dormouse::Manifest::COLLECTION_TYPES
+    unless allowed_types.include?(type)
+      raise ArgumentError, "Invalid collection type: #{type.inspect} (must be in #{allowed_types.inspect})"
+    end
+    
+    @manifest.collection_type = type
+    self
   end
   
   def menu(name, options={})
