@@ -2,6 +2,19 @@ class Dormouse::Widgets::Base
   
   attr_reader :property
   
+  def self.property_type(name=nil)
+    if name
+      @property_type = name
+      Dormouse::Widgets[name] = self
+    else
+      @property_type
+    end
+  end
+  
+  def property_type
+    self.class.property_type
+  end
+  
   def initialize(manifest, property)
     @manifest, @property = manifest, property
   end

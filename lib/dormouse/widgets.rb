@@ -1,6 +1,18 @@
 module Dormouse::Widgets
   
+  class << self
+    def [](name)
+      @widget_types[name.to_sym]
+    end
+    
+    def []=(name, klass)
+      (@widget_types ||= {})[name.to_sym] = klass
+    end
+  end
+  
   require 'dormouse/widgets/base'
+  require 'dormouse/widgets/simple'
+  
   require 'dormouse/widgets/string'
   require 'dormouse/widgets/text'
   require 'dormouse/widgets/date'
