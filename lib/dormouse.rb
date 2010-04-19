@@ -1,5 +1,7 @@
 module Dormouse
   
+  require 'dormouse/version'
+  
   require 'dormouse/manifest'
   require 'dormouse/property'
   require 'dormouse/dsl'
