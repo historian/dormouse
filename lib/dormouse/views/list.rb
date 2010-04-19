@@ -7,7 +7,7 @@ class Dormouse::Views::List < Dormouse::Views::Base
     
     controller_eval do
       @collection = collection
-      render :template => 'dormouse/views/list', :layout => 'dormouse/layouts/dormouse'
+      render :template => "#{manifest.style}/views/list", :layout => "#{manifest.style}/layouts/dormouse"
     end
   end
   

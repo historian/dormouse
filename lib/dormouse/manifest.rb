@@ -12,9 +12,11 @@ class Dormouse::Manifest
   
   attr_reader :resource, :order
   attr_accessor :primary_name_column, :secondary_name_column
+  attr_accessor :collection_url, :object_url
+  attr_accessor :style
   
-  def mount
-    Dormouse::ActionController.build(self)
+  def mount(map)
+    Dormouse::ActionController.build(self, map)
   end
   
   def render_list(controller, collection=nil)
@@ -46,8 +48,38 @@ class Dormouse::Manifest
     @controller_class ||= "#{resource}::ResourcesController".constantize
   end
   
+  def style
+    @style ||= 'dormouse'
+  end
+  
   def primary_name_column
-    @primary_name_column || @properties[@order.first].name
+    @primary_name_column ||= @properties[@order.first].name
+  end
+  
+  def collection_url
+    @collection_url ||= "/#{@resource.to_s.gsub('::', '/').underscore.pluralize}"
+  end
+  
+  def object_url(object=nil)
+    if object
+      self.object_url.gsub(%r{[:]([^/]+)}) do
+        object.__send__($1).to_s
+      end
+    else
+      @object_url ||= "#{collection_url}/:id"
+    end
+  end
+  
+  def save_object_url(object=nil)
+    if object
+      if object.new_record?
+        collection_url
+      else
+        object_url(object)
+      end
+    else
+      @object_url ||= "#{collection_url}/:id"
+    end
   end
   
 private
@@ -64,6 +96,8 @@ private
       @properties[property.name] = property
       @order << property.name
     end
+  rescue ActiveRecord::StatementInvalid => e
+    puts "#{e.message}"
   end
   
 end

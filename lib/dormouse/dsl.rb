@@ -18,14 +18,22 @@ class Dormouse::DSL
     @manifest = manifest
   end
   
+  # set the view style for this model. (The default style is :dormouse)
+  def style(name)
+    @manifest.style = (name || 'dormouse')
+  end
+  
+  # set the primary name for a model. The primary name is the name shown in lists, select boxes and grids as the link to the details.
   def primary_name(property)
     set(property, :primary => true)
   end
   
+  # set the secondary name for a model. The secondary name is the name shown in lists and grids as the tag line.
   def secondary_name(property)
     set(property, :secondary => true)
   end
   
+  # hide one or more properties in the form.
   def hide(*properties)
     properties.each do |property|
       set(property, :hidden => true)
@@ -33,6 +41,7 @@ class Dormouse::DSL
     self
   end
   
+  # show one or more properties in the form.
   def show(*properties)
     properties.each do |property|
       set(property, :hidden => false)
@@ -40,10 +49,12 @@ class Dormouse::DSL
     self
   end
   
+  # set  a custom label for a property
   def label(property, label=nil)
     set(property, :label => label)
   end
   
+  # reorder one or more properties in the form.
   def order(*properties)
     options = properties.extract_options!
     if options[:after]

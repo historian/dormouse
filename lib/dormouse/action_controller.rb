@@ -1,7 +1,7 @@
 module Dormouse::ActionController
   
-  def self.build(manifest)
-    build_routes(manifest)
+  def self.build(manifest, map)
+    build_routes(manifest, map)
   end
   
   def self.build_controller(manifest)
@@ -12,12 +12,10 @@ module Dormouse::ActionController
     controller
   end
   
-  def self.build_routes(manifest)
+  def self.build_routes(manifest, map)
     name       = manifest.resource.to_s.split('::').last.tableize
     controller = manifest.controller_class.to_s.sub(/Controller$/, '')
-    Dormouse::Application.routes.draw do |map|
-      resources name.to_sym, :controller => controller
-    end
+    map.resources name.to_sym, :controller => controller
   end
   
 end
@@ -45,7 +43,7 @@ module Dormouse::ActionController::Actions
   def create
     attrs = params[manifest.resource.to_s.split('::').last.underscore]
     manifest.resource.create! attrs
-    redirect_to manifest.resource
+    redirect_to manifest.collection_url
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   end
@@ -53,7 +51,7 @@ module Dormouse::ActionController::Actions
   def update
     attrs = params[manifest.resource.to_s.split('::').last.underscore]
     manifest.resource.find(params[:id]).update_attributes! attrs
-    redirect_to manifest.resource
+    redirect_to manifest.collection_url
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   end

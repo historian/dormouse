@@ -16,7 +16,7 @@ class Dormouse::Views::Form < Dormouse::Views::Base
     controller_eval do
       @object   = object
       @widgets  = widgets
-      render :template => 'dormouse/views/form', :layout => 'dormouse/layouts/dormouse'
+      render :template => "#{manifest.style}/views/form", :layout => "#{manifest.style}/layouts/dormouse"
     end
   end
   
