@@ -1,0 +1,21 @@
+<div id="actions">
+  
+  <div class="box">
+    <h3>Actions</h3>
+    <ul>
+      <li><a href="<%= request.path %>/new">New item</a></li>
+    </ul>
+  </div>
+  
+</div>
+
+<div id="list">
+  <% @collection.each do |object| %>
+    <%= div_for object do %>
+      <%= link_to object.__send__(manifest.primary_name_column), [:edit, object] %>
+      <% if manifest.secondary_name_column %>
+      <span><%= object.__send__(manifest.secondary_name_column) %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
