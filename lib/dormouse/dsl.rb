@@ -1,3 +1,17 @@
+# The DSL is used by the <tt>#manifest</tt> macro in ActiveRecord::Base to set 
+# options on properties.
+# 
+#   class Post < ActiveRecord::Base
+#     validates :title, :presence => true
+#     
+#     manifest do
+#       order :published_on, :before => :body
+#       set :body, :label => false
+#       hide :created_at, :updated_at
+#       primary_name :title
+#     end
+#   end
+# 
 class Dormouse::DSL
   
   def initialize(manifest)
