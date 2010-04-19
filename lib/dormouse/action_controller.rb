@@ -13,8 +13,15 @@ module Dormouse::ActionController
   end
   
   def self.build_routes(manifest, map)
-    name       = manifest.resource.to_s.split('::').last.tableize
-    controller = manifest.controller_class.to_s.sub(/Controller$/, '')
+    namespaces = manifest.resource.to_s.split('::')
+    name       = namespaces.last.tableize
+    namespaces = namespaces[0..-2]
+    controller = manifest.controller_class.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '')
+    
+    namespaces.inject(map) do |map, namespace|
+      map.namespace(namespace.underscore) { |map| map }
+      map
+    end
     
     map.resources name.to_sym, :controller => controller do |subresource|
       manifest.each do |property|
@@ -30,9 +37,12 @@ module Dormouse::ActionController
     return unless property.type == :has_many and !property.options[:inline]
     controller = manifest.controller_class
     controller.potential_parents[property.name.to_sym] = parent
-    controller = controller.to_s.sub(/Controller$/, '')
     
-    options = { :controller => controller, :only => [:index, :new] }
+    namespaces = manifest.resource.to_s.split('::')
+    namespaces = namespaces[0..-2]
+    controller = controller.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '')
+    
+    options = { :controller => controller, :only => [:index, :new, :create] }
     map.resources property.name.to_sym, options do |map|
       manifest.each do |property|
         
@@ -50,7 +60,7 @@ module Dormouse::ActionController::Actions
   def self.included(base)
     base.class_eval do
       helper_method :manifest
-      before_filter :lookup_parent, :only => [:index, :new]
+      before_filter :lookup_parent, :only => [:index, :new, :create]
     end
   end
   
@@ -73,15 +83,17 @@ module Dormouse::ActionController::Actions
   end
   
   def create
-    attrs = params[manifest.resource.to_s.split('::').last.underscore]
-    manifest.resource.create! attrs
+    attrs = params[manifest.resource.to_s.gsub('::', '_').underscore]
+    object = (@parent ? @parent.__send__(@parent_association).build(attrs) :
+                        manifest.resource.new(attrs))
+    object.save!
     redirect_to manifest.collection_url
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   end
   
   def update
-    attrs = params[manifest.resource.to_s.split('::').last.underscore]
+    attrs = params[manifest.resource.to_s.gsub('::', '_').underscore]
     manifest.resource.find(params[:id]).update_attributes! attrs
     redirect_to manifest.collection_url
   rescue ActiveRecord::RecordInvalid => e

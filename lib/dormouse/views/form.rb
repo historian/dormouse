@@ -18,6 +18,15 @@ class Dormouse::Views::Form < Dormouse::Views::Base
       @object   = object
       @widgets  = widgets
       @tabs     = tabs
+      
+      @save_url = begin
+        if object.new_record?
+          File.dirname(request.path)
+        else
+          manifest.object_url(object)
+        end
+      end
+      
       render :template => "#{manifest.style}/views/form", :layout => "#{manifest.style}/layouts/dormouse"
     end
   end

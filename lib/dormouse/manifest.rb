@@ -83,18 +83,6 @@ class Dormouse::Manifest
     end
   end
   
-  def save_object_url(object=nil)
-    if object
-      if object.new_record?
-        collection_url
-      else
-        object_url(object)
-      end
-    else
-      @object_url ||= "#{collection_url}/:id"
-    end
-  end
-  
   def inspect
     "#<#{self}: #{@resource}>"
   end
