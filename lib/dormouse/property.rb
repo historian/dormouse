@@ -13,7 +13,7 @@ class Dormouse::Property
     populate
   end
   
-  attr_reader :name, :type, :options, :resource
+  attr_reader :name, :type, :options, :resource, :names
   attr_accessor :hidden
   attr_accessor :label
   
@@ -22,6 +22,14 @@ class Dormouse::Property
     @label   = options.delete(:label)  if options.key?(:label)
     @label   = @name.to_s.humanize     if @label.nil?
     @options = @options.merge(options)
+  end
+  
+  def plural?
+    [:has_many, :has_and_belongs_to_many].include? @type
+  end
+  
+  def names
+    @names ||= Dormouse::Names.new(self)
   end
   
 end

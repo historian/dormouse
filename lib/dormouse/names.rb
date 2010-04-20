@@ -1,8 +1,10 @@
 class Dormouse::Names
   
-  def initialize(manifest)
-    @manifest = manifest
-    @resource = manifest.resource
+  def initialize(manifest_or_property)
+    if Dormouse::Property === manifest_or_property
+      @property = manifest_or_property
+    end
+    @resource = manifest_or_property.resource
   end
   
   def class_name(options={})
@@ -20,14 +22,22 @@ class Dormouse::Names
   def identifier(options={})
     @identifier ||= {}
     @identifier[options] ||= begin
-      class_name(options).gsub('::', '').underscore
+      if @property
+        if @property.plural?
+          @property.name.to_s.singularize
+        else
+          @property.name.to_s
+        end
+      else
+        class_name(options).gsub('::', '').underscore
+      end
     end
   end
   
   def human(options={})
     @human ||= {}
     @human[options] ||= begin
-      class_name(options.merge(:short => true)).humanize
+      identifier(options).humanize
     end
   end
   
@@ -54,11 +64,11 @@ class Dormouse::Names
   end
   
   def param_id
-    @param_id ||= "#{class_name(:short => true)}_id".underscore
+    @param_id ||= "#{identifier}_id".underscore
   end
   
   def param_ids
-    @param_ids ||= "#{class_name(:short => true)}_ids".underscore
+    @param_ids ||= "#{identifier}_ids".underscore
   end
   
   def param
