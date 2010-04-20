@@ -13,13 +13,12 @@ module Dormouse::ActionController
   end
   
   def self.build_routes(manifest, map)
-    namespaces = manifest.resource.to_s.split('::')
-    name       = namespaces.last.tableize
-    namespaces = namespaces[0..-2]
-    controller = manifest.controller_class.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '').underscore
+    name       = manifest.names.identifier(:plural => true, :short => true)
+    namespaces = manifest.names.controller_namespace.split('/')
+    controller = manifest.names.controller_name
     
     namespaces.inject(map) do |map, namespace|
-      map.namespace(namespace.underscore) { |map| map }
+      map.namespace(namespace) { |map| map }
       map
     end
     
@@ -36,12 +35,10 @@ module Dormouse::ActionController
   
   def self.build_sub_routes(parent, property, manifest, map)
     return unless property.type == :has_many and !property.options[:inline]
+    
     controller = manifest.controller_class
     controller.potential_parents[property.name.to_sym] = parent
-    
-    namespaces = manifest.resource.to_s.split('::')
-    namespaces = namespaces[0..-2]
-    controller = controller.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '').underscore
+    controller = manifest.names.controller_name
     
     options = { :controller => controller, :only => [:index, :new, :create] }
     map.resources property.name.to_sym, options do |map|

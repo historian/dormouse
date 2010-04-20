@@ -4,6 +4,7 @@ module Dormouse
   
   require 'dormouse/manifest'
   require 'dormouse/property'
+  require 'dormouse/names'
   require 'dormouse/dsl'
   require 'dormouse/menu'
   require 'dormouse/tab'

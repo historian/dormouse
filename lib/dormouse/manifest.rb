@@ -8,11 +8,12 @@ class Dormouse::Manifest
     @resource   = resource
     @properties = {}
     @order      = []
+    @names      = Dormouse::Names.new(self)
     
     generate_default_properties
   end
   
-  attr_reader :resource, :order
+  attr_reader :resource, :order, :names
   attr_accessor :primary_name_column, :secondary_name_column
   attr_accessor :collection_url, :object_url
   attr_accessor :style, :collection_type
@@ -54,7 +55,7 @@ class Dormouse::Manifest
   end
   
   def controller_class
-    @controller_class ||= "#{resource}::ResourcesController".constantize
+    @controller_class ||= names.controller_class_name.constantize
   end
   
   def style
