@@ -17,6 +17,6 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "dormouse"
   
-  s.files        = Dir.glob("{app,lib}/**/*") + %w(LICENSE README.md CHANGELOG.md)
+  s.files        = Dir.glob("{app,lib}/**/*") + %w(LICENSE README.md ROADMAP.md CHANGELOG.md)
   s.require_path = 'lib'
 end
