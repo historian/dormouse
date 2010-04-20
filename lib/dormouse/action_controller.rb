@@ -16,14 +16,15 @@ module Dormouse::ActionController
     namespaces = manifest.resource.to_s.split('::')
     name       = namespaces.last.tableize
     namespaces = namespaces[0..-2]
-    controller = manifest.controller_class.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '')
+    controller = manifest.controller_class.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '').underscore
     
     namespaces.inject(map) do |map, namespace|
       map.namespace(namespace.underscore) { |map| map }
       map
     end
     
-    map.resources name.to_sym, :controller => controller do |subresource|
+    options = { :controller => controller, :collection => { :update => :put, :destroy => :delete } }
+    map.resources name.to_sym, options do |subresource|
       manifest.each do |property|
         
         next unless property.resource
@@ -40,7 +41,7 @@ module Dormouse::ActionController
     
     namespaces = manifest.resource.to_s.split('::')
     namespaces = namespaces[0..-2]
-    controller = controller.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '')
+    controller = controller.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '').underscore
     
     options = { :controller => controller, :only => [:index, :new, :create] }
     map.resources property.name.to_sym, options do |map|
@@ -83,18 +84,38 @@ module Dormouse::ActionController::Actions
   end
   
   def create
-    attrs = params[manifest.resource.to_s.gsub('::', '_').underscore]
-    object = (@parent ? @parent.__send__(@parent_association).build(attrs) :
-                        manifest.resource.new(attrs))
-    object.save!
+    singular_param = manifest.resource.to_s.gsub('::', '_').underscore
+    plural_param   = singular_param.pluralize
+    
+    collection = params[plural_param] || []
+    collection.push params[singular_param] if params[singular_param]
+    
+    manifest.resource.transaction do
+      collection.each do |attrs|
+        object = (@parent ? @parent.__send__(@parent_association).build(attrs) :
+                            manifest.resource.new(attrs))
+        object.save!
+      end
+    end
+    
     redirect_to manifest.collection_url
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   end
   
   def update
-    attrs = params[manifest.resource.to_s.gsub('::', '_').underscore]
-    manifest.resource.find(params[:id]).update_attributes! attrs
+    singular_param = manifest.resource.to_s.gsub('::', '_').underscore
+    plural_param   = singular_param.pluralize
+    
+    collection = params[plural_param] || {}
+    collection[params[:id]] = params[singular_param] if params[singular_param]
+    
+    manifest.resource.transaction do
+      collection.each do |id, attrs|
+        manifest.resource.find(id).update_attributes! attrs
+      end
+    end
+    
     redirect_to manifest.collection_url
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
@@ -103,7 +124,18 @@ module Dormouse::ActionController::Actions
   end
   
   def destroy
-    manifest.resource.find(params[:id]).destroy
+    singular_param = manifest.resource.to_s.gsub('::', '_').underscore
+    plural_param   = "#{singular_param}_ids".pluralize
+    
+    ids = params[plural_param] || []
+    ids.push(params[:id]) if params[:id]
+    
+    manifest.resource.transaction do
+      ids.each do |id|
+        manifest.resource.find(id).destroy
+      end
+    end
+    
     redirect_to manifest.collection_url
   rescue ActiveRecord::RecordNotFound => e
     redirect_to manifest.collection_url
