@@ -13,45 +13,33 @@ module Dormouse::ActionController
   end
   
   def self.build_routes(manifest, map)
-    namespaces = manifest.resource.to_s.split('::')
-    name       = namespaces.last.tableize
-    namespaces = namespaces[0..-2]
-    controller = manifest.controller_class.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '').underscore
+    name       = manifest.names.identifier(:plural => true, :short => true)
+    namespace  = manifest.names.controller_namespace
+    controller = manifest.names.controller_name
     
-    namespaces.inject(map) do |map, namespace|
-      map.namespace(namespace.underscore) { |map| map }
-      map
-    end
-    
-    options = { :controller => controller, :collection => { :update => :put, :destroy => :delete } }
+    options = { :controller => controller, :collection => { :update => :put, :destroy => :delete }, :path_prefix => "/#{namespace}" }
     map.resources name.to_sym, options do |subresource|
       manifest.each do |property|
         
         next unless property.resource
-        build_sub_routes(manifest, property, property.resource.manifest, subresource)
+        build_sub_routes(manifest, property, subresource)
         
       end
     end
   end
   
-  def self.build_sub_routes(parent, property, manifest, map)
+  def self.build_sub_routes(parent, property, map)
     return unless property.type == :has_many and !property.options[:inline]
+    
+    manifest   = property.resource.manifest
     controller = manifest.controller_class
     controller.potential_parents[property.name.to_sym] = parent
     
-    namespaces = manifest.resource.to_s.split('::')
-    namespaces = namespaces[0..-2]
-    controller = controller.to_s.sub(/Controller$/, '').sub(%r{^#{namespaces.join('::')}([:]{2})?}, '').underscore
+    name       = property.names.identifier(:plural => true, :short => true)
+    controller = property.names.controller_name
     
     options = { :controller => controller, :only => [:index, :new, :create] }
-    map.resources property.name.to_sym, options do |map|
-      manifest.each do |property|
-        
-        next unless property.resource
-        build_sub_routes(manifest, property, property.resource.manifest, map)
-        
-      end
-    end
+    map.resources name.to_sym, options
   end
   
 end
@@ -60,7 +48,7 @@ module Dormouse::ActionController::Actions
   
   def self.included(base)
     base.class_eval do
-      helper_method :manifest
+      helper_method :manifest, :save_url
       before_filter :lookup_parent, :only => [:index, :new, :create]
     end
   end
@@ -83,8 +71,8 @@ module Dormouse::ActionController::Actions
   end
   
   def create
-    singular_param = manifest.resource.to_s.gsub('::', '_').underscore
-    plural_param   = singular_param.pluralize
+    singular_param = manifest.names.param
+    plural_param   = manifest.names.params
     
     collection = params[plural_param] || []
     collection.push params[singular_param] if params[singular_param]
@@ -97,14 +85,14 @@ module Dormouse::ActionController::Actions
       end
     end
     
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index(@parent)
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   end
   
   def update
-    singular_param = manifest.resource.to_s.gsub('::', '_').underscore
-    plural_param   = singular_param.pluralize
+    singular_param = manifest.names.param
+    plural_param   = manifest.names.params
     
     collection = params[plural_param] || {}
     collection[params[:id]] = params[singular_param] if params[singular_param]
@@ -115,16 +103,15 @@ module Dormouse::ActionController::Actions
       end
     end
     
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   rescue ActiveRecord::RecordNotFound => e
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   end
   
   def destroy
-    singular_param = manifest.resource.to_s.gsub('::', '_').underscore
-    plural_param   = "#{singular_param}_ids".pluralize
+    plural_param   = manifest.names.param_ids
     
     ids = params[plural_param] || []
     ids.push(params[:id]) if params[:id]
@@ -135,12 +122,20 @@ module Dormouse::ActionController::Actions
       end
     end
     
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   rescue ActiveRecord::RecordNotFound => e
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   end
   
 private
+  
+  def save_url
+    if @object.new_record?
+      manifest.urls.create(@parent)
+    else
+      manifest.urls.update(@object)
+    end
+  end
   
   def manifest
     self.class.manifest
@@ -148,7 +143,7 @@ private
   
   def lookup_parent
     self.class.potential_parents.each do |association, manifest|
-      param = manifest.resource.to_s.split('::').last.underscore + '_id'
+      param = manifest.names.param_id
       if params[param]
         @parent_manifest = manifest
         @parent = manifest.resource.find(params[param])

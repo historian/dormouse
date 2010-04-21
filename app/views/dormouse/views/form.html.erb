@@ -4,7 +4,7 @@
   <% end %>
 </ul>
 
-<% form_for @object, :url => @save_url do |f| %>
+<% form_for @object, :url => save_url do |f| %>
   
   <%= f.error_messages %>
   
@@ -13,6 +13,8 @@
     <%= widget.render_in_view(self, @object, :form => f) %>
   <% end %>
   
-  <%= f.submit %>
+  <div id="actions">
+    <%= f.submit %>
+  </div>
   
 <% end %>

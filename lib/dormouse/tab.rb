@@ -7,12 +7,11 @@ class Dormouse::Tab
   attr_reader :manifest, :property
   
   def name
-    @name ||= @property.resource.to_s.humanize.pluralize
+    @name ||= @property.resource.manifest.names.human(:plural => true)
   end
   
   def url_for_object(object)
-    @suffix ||= @property.resource.to_s.split('::').last.tableize
-    "#{manifest.object_url(object)}/#{@suffix}"
+    property.urls.index(object)
   end
   
 end

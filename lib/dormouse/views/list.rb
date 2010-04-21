@@ -12,7 +12,7 @@ class Dormouse::Views::List < Dormouse::Views::Base
                :layout   => false
       else
         render :template => "#{manifest.style}/views/list",
-               :layout   => "#{manifest.style}/layouts/dormouse"
+               :layout   => "#{manifest.style}/layouts/application"
       end
     end
   end

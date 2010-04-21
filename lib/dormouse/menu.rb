@@ -61,7 +61,7 @@ class Dormouse::Menu::Item
   attr_reader :name, :manifest, :options, :order_options, :url
   
   def url
-    @manifest.collection_url
+    @manifest.urls.index
   end
   
 end

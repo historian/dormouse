@@ -12,7 +12,7 @@
 <div id="list">
   <% @collection.each do |object| %>
     <% div_for object do %>
-      <%= link_to object.__send__(manifest.primary_name_column), manifest.object_url(object)+'/edit' %>
+      <%= link_to object.__send__(manifest.primary_name_column), manifest.urls.edit(object) %>
       <% if manifest.secondary_name_column %>
       <span><%= object.__send__(manifest.secondary_name_column) %></span>
       <% end %>

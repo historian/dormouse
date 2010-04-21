@@ -8,13 +8,14 @@ class Dormouse::Manifest
     @resource   = resource
     @properties = {}
     @order      = []
+    @names      = Dormouse::Names.new(self)
+    @urls       = Dormouse::Urls.new(self)
     
     generate_default_properties
   end
   
-  attr_reader :resource, :order
+  attr_reader :resource, :order, :names, :urls
   attr_accessor :primary_name_column, :secondary_name_column
-  attr_accessor :collection_url, :object_url
   attr_accessor :style, :collection_type
   
   def mount(map)
@@ -50,15 +51,17 @@ class Dormouse::Manifest
   end
   
   def controller_superclass
-    ApplicationController
+    @controller_superclass ||= begin
+      Dormouse.options[:controller_superclass].constantize
+    end
   end
   
   def controller_class
-    @controller_class ||= "#{resource}::ResourcesController".constantize
+    @controller_class ||= names.controller_class_name.constantize
   end
   
   def style
-    @style ||= 'dormouse'
+    @style ||= Dormouse.options[:style]
   end
   
   def collection_type
@@ -67,20 +70,6 @@ class Dormouse::Manifest
   
   def primary_name_column
     @primary_name_column ||= @properties[@order.first].name
-  end
-  
-  def collection_url
-    @collection_url ||= "/#{@resource.to_s.gsub('::', '/').underscore.pluralize}"
-  end
-  
-  def object_url(object=nil)
-    if object
-      self.object_url.gsub(%r{[:]([^/]+)}) do
-        object.__send__($1).to_s
-      end
-    else
-      @object_url ||= "#{collection_url}/:id"
-    end
   end
   
   def inspect

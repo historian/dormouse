@@ -2,8 +2,11 @@ module Dormouse
   
   require 'dormouse/version'
   
+  require 'dormouse/configuration'
   require 'dormouse/manifest'
   require 'dormouse/property'
+  require 'dormouse/names'
+  require 'dormouse/urls'
   require 'dormouse/dsl'
   require 'dormouse/menu'
   require 'dormouse/tab'
