@@ -1,3 +1,4 @@
+# @author Simon Menke
 class Dormouse::Tab
   
   def initialize(manifest, property)

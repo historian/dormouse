@@ -1,3 +1,4 @@
+# @author Simon Menke
 class Dormouse::Menu
   
   include Enumerable

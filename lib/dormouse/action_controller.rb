@@ -1,3 +1,4 @@
+# @author Simon Menke
 module Dormouse::ActionController
   
   def self.build(manifest, map)

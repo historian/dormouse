@@ -1,3 +1,4 @@
+# @author Simon Menke
 module Dormouse::ActiveRecord
   
   def self.included(base)
@@ -56,7 +57,7 @@ module Dormouse::ActiveRecord::Meta
     }
     
     scope :dormouse_paginate, lambda { |manifest, page|
-      offset((page.to_i - 1) * 25).limit(25)
+      limit(25).offset((page.to_i - 1) * 25)
     }
     
     scope :dormouse_order, lambda { |manifest, order|

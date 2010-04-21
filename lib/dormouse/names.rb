@@ -1,3 +1,4 @@
+# @author Simon Menke
 class Dormouse::Names
   
   def initialize(manifest_or_property)

@@ -1,3 +1,4 @@
+# @abstract
 class Dormouse::Views::Base
   
   attr_reader :manifest

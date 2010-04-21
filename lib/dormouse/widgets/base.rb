@@ -1,3 +1,4 @@
+# @abstract
 class Dormouse::Widgets::Base
   
   attr_reader :property

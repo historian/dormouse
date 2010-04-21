@@ -1,3 +1,4 @@
+# @author Simon Menke
 module Dormouse::Widgets
   
   class << self

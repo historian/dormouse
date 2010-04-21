@@ -1,3 +1,4 @@
+# @author Simon Menke
 class Dormouse::Manifest
   
   include Enumerable
@@ -15,26 +16,35 @@ class Dormouse::Manifest
   end
   
   # the resource class (must be an instance of ActiveRecord::Base)
+  # @return [Class]
   attr_reader :resource
   
-  attr_reader :order # :nodoc:
+  # List of ordered property names
+  # @return [Array<Symbol>]
+  attr_reader :order
   
-  # A helper for building names for this resource. see Dormouse::Names
+  # A helper for building names for this resource.
+  # @return [Dormouse::Names]
   attr_reader :names
   
-  # A helper for building urls to this resource. see Dormouse::Urls
+  # A helper for building urls to this resource.
+  # @return [Dormouse::Urls]
   attr_reader :urls
   
   # The name of the column representing the primary name of this resource. this is displayed as the clickable link in a list or tree.
+  # @return [Symbol]
   attr_accessor :primary_name_column
   
   # The name of the column representing the secondary name of this resource. this is displayed below the clickable link in a list or tree.
+  # @return [Symbol]
   attr_accessor :secondary_name_column
   
   # The style used to render this resource. defaults to <tt>'dormouse'</tt>.
+  # @return [Symbol]
   attr_accessor :style
   
   # The collection type of this resource. Possible options are <tt>list</tt>, <tt>:tree</tt> and <tt>:grid</tt>
+  # @return [Symbol]
   attr_accessor :collection_type
   
   # Mounts this resource. <tt>map</tt> must be a route mapper. this method draws all relevant routes for this resource.
@@ -51,11 +61,6 @@ class Dormouse::Manifest
     end
   end
   
-  def render_list(controller, collection=nil) # :nodoc:
-    @list_view ||= Dormouse::Views::List.new(self)
-    @list_view.render_in_controller(controller, collection)
-  end
-  
   # Render a form
   def render_form(controller, object=nil)
     @form_view ||= Dormouse::Views::Form.new(self)
@@ -63,6 +68,8 @@ class Dormouse::Manifest
   end
   
   # get a property by name. <tt>:_primary</tt> and <tt>:_secondary</tt> are shortcuts to the <tt>primary_name_column</tt> and <tt>secondary_name_column</tt> properties.
+  # @param [String, Symbol] name The name of the property
+  # @return [Dormouse::Property]
   def [](name)
     name = primary_name_column   if name == :_primary
     name = secondary_name_column if name == :_secondary
@@ -70,6 +77,9 @@ class Dormouse::Manifest
   end
   
   # loop over each property in the specified order.
+  # @yield [property]
+  # @yieldparam [Dormouse::Property] property
+  # @return [Dormouse::Manifest] self
   def each
     @order.each do |name|
       yield @properties[name]
@@ -89,23 +99,28 @@ class Dormouse::Manifest
     @controller_class ||= names.controller_class_name.constantize
   end
   
-  def style # :nodoc:
+  def style
     @style ||= Dormouse.options[:style]
   end
   
-  def collection_type # :nodoc:
+  def collection_type
     @collection_type ||= :list
   end
   
-  def primary_name_column # :nodoc:
+  def primary_name_column
     @primary_name_column ||= @properties[@order.first].name
   end
   
-  def inspect # :nodoc:
+  def inspect
     "#<#{self}: #{@resource}>"
   end
   
 private
+  
+  def render_list(controller, collection=nil)
+    @list_view ||= Dormouse::Views::List.new(self)
+    @list_view.render_in_controller(controller, collection)
+  end
   
   def generate_default_properties
     resource.content_columns.each do |column|

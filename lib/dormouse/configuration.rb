@@ -1,3 +1,4 @@
+# @author Simon Menke
 module Dormouse
   
   DEFAULT_OPTIONS = {

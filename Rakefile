@@ -28,15 +28,14 @@ task :release => [:load_version, :build] do
   sh "git push origin master --tags"
 end
 
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
-  require File.expand_path('../lib/dormouse/version', __FILE__)
-  version = Dormouse::VERSION
-
-  rdoc.rdoc_dir = 'doc'
-  rdoc.title = "dormouse #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+begin
+  require 'yard'
+  YARD::Rake::YardocTask.new do |t|
+    t.files   = FileList['lib/**/*.rb'].to_a
+    t.options = ['-m', 'markdown', '--files', FileList['documentation/*.markdown'].to_a.join(',')]
+  end
+rescue LoadError
+  puts "YARD not available. Install it with: sudo gem install yard"
 end
 
 task :load_version do
