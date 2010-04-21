@@ -14,7 +14,7 @@
 # 
 class Dormouse::DSL
   
-  def initialize(manifest)
+  def initialize(manifest) # :nodoc:
     @manifest = manifest
   end
   
@@ -37,6 +37,7 @@ class Dormouse::DSL
     self
   end
   
+  # Set a menu item for this resource
   def menu(name, options={})
     Dormouse::menu.register(name, @manifest, options)
   end

@@ -157,26 +157,26 @@ private
     collection = (@parent ? @parent.__send__(@parent_association) :
                             manifest.resource)
     
-    order = "-updated_at"
+    order = "-#{manifest[:updated_at].name(:table => true)}"
     
     if query = params[:q]
       collection = collection.dormouse_search(manifest, query)
-      order = manifest.primary_name_column
+      order = manifest[:_primary].name(:table => true)
     end
     
     if letter = params[:l]
       collection = collection.dormouse_search(manifest, letter[0,1])
-      order = manifest.primary_name_column
+      order = manifest[:_primary].name(:table => true)
     end
     
     if filter = params[:f] and filter = manifest.filters[filters.to_sym]
       collection = collection.dormouse_filter(manifest, filter)
-      order = manifest.primary_name_column
+      order = manifest[:_primary].name(:table => true)
     end
     
     if page = params[:p]
       collection = collection.dormouse_paginate(manifest, page)
-      order = manifest.primary_name_column
+      order = manifest[:_primary].name(:table => true)
     else
       collection = collection.dormouse_paginate(manifest, 1)
     end

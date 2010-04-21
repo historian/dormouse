@@ -28,6 +28,17 @@ task :release => [:load_version, :build] do
   sh "git push origin master --tags"
 end
 
+require 'rake/rdoctask'
+Rake::RDocTask.new do |rdoc|
+  require File.expand_path('../lib/dormouse/version', __FILE__)
+  version = Dormouse::VERSION
+
+  rdoc.rdoc_dir = 'doc'
+  rdoc.title = "dormouse #{version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
 task :load_version do
   require File.expand_path('../lib/dormouse/version', __FILE__)
 end

@@ -8,7 +8,7 @@ class Dormouse::Property
     populate
   end
   
-  attr_reader :name, :type, :options, :resource, :names, :urls, :manifest
+  attr_reader :name, :type, :options, :resource, :names, :urls, :manifest, :table
   attr_accessor :hidden
   attr_accessor :label
   
@@ -27,6 +27,10 @@ class Dormouse::Property
     ActiveRecord::Reflection::AssociationReflection === @target
   end
   
+  def column?
+    !reflection?
+  end
+  
   def type
     @type ||= begin
       if reflection?
@@ -37,8 +41,21 @@ class Dormouse::Property
     end
   end
   
-  def name
+  def name(options={})
     @name ||= @target.name.to_sym
+    if options[:table]
+      "#{table}.#{@name}"
+    else
+      @name
+    end
+  end
+  
+  def table
+    if column?
+      @table_name ||= @manifest.resource.table_name
+    else
+      nil
+    end
   end
   
   def resource

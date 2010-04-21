@@ -14,35 +14,62 @@ class Dormouse::Manifest
     generate_default_properties
   end
   
-  attr_reader :resource, :order, :names, :urls
-  attr_accessor :primary_name_column, :secondary_name_column
-  attr_accessor :style, :collection_type
+  # the resource class (must be an instance of ActiveRecord::Base)
+  attr_reader :resource
   
+  attr_reader :order # :nodoc:
+  
+  # A helper for building names for this resource. see Dormouse::Names
+  attr_reader :names
+  
+  # A helper for building urls to this resource. see Dormouse::Urls
+  attr_reader :urls
+  
+  # The name of the column representing the primary name of this resource. this is displayed as the clickable link in a list or tree.
+  attr_accessor :primary_name_column
+  
+  # The name of the column representing the secondary name of this resource. this is displayed below the clickable link in a list or tree.
+  attr_accessor :secondary_name_column
+  
+  # The style used to render this resource. defaults to <tt>'dormouse'</tt>.
+  attr_accessor :style
+  
+  # The collection type of this resource. Possible options are <tt>list</tt>, <tt>:tree</tt> and <tt>:grid</tt>
+  attr_accessor :collection_type
+  
+  # Mounts this resource. <tt>map</tt> must be a route mapper. this method draws all relevant routes for this resource.
   def mount(map)
     Dormouse::ActionController.build(self, map)
   end
   
+  # Render a collection
   def render_collection(controller, collection=nil)
     case collection_type.to_sym
     when :list then render_list(controller, collection)
+    when :tree then render_tree(controller, collection)
     when :grid then render_grid(controller, collection)
     end
   end
   
-  def render_list(controller, collection=nil)
+  def render_list(controller, collection=nil) # :nodoc:
     @list_view ||= Dormouse::Views::List.new(self)
     @list_view.render_in_controller(controller, collection)
   end
   
+  # Render a form
   def render_form(controller, object=nil)
     @form_view ||= Dormouse::Views::Form.new(self)
     @form_view.render_in_controller(controller, object)
   end
   
+  # get a property by name. <tt>:_primary</tt> and <tt>:_secondary</tt> are shortcuts to the <tt>primary_name_column</tt> and <tt>secondary_name_column</tt> properties.
   def [](name)
+    name = primary_name_column   if name == :_primary
+    name = secondary_name_column if name == :_secondary
     @properties[name.to_sym]
   end
   
+  # loop over each property in the specified order.
   def each
     @order.each do |name|
       yield @properties[name]
@@ -50,29 +77,31 @@ class Dormouse::Manifest
     self
   end
   
+  # the superclass of the generated controller for this resource
   def controller_superclass
     @controller_superclass ||= begin
       Dormouse.options[:controller_superclass].constantize
     end
   end
   
+  # the controller class for this resource
   def controller_class
     @controller_class ||= names.controller_class_name.constantize
   end
   
-  def style
+  def style # :nodoc:
     @style ||= Dormouse.options[:style]
   end
   
-  def collection_type
+  def collection_type # :nodoc:
     @collection_type ||= :list
   end
   
-  def primary_name_column
+  def primary_name_column # :nodoc:
     @primary_name_column ||= @properties[@order.first].name
   end
   
-  def inspect
+  def inspect # :nodoc:
     "#<#{self}: #{@resource}>"
   end
   

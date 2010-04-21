@@ -24,7 +24,7 @@ module Dormouse::ActiveRecord::Meta
       else
         query = "#{query}%"
       end
-      { :conditions =>  ["#{manifest.table_name}.#{manifest.primary_name_column} LIKE ?", query] }
+      { :conditions =>  ["#{manifest[:_primary].name(:table => true)} LIKE ?", query] }
     }
     
     named_scope :dormouse_paginate, lambda { |manifest, page|
@@ -52,7 +52,7 @@ module Dormouse::ActiveRecord::Meta
       else
         query = "#{query}%"
       end
-      where("#{manifest.table_name}.#{manifest.primary_name_column} LIKE ?", query)
+      where("#{manifest[:_primary].name(:table => true)} LIKE ?", query)
     }
     
     scope :dormouse_paginate, lambda { |manifest, page|
