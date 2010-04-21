@@ -10,10 +10,12 @@ class Dormouse::Property
     @name     = column_or_association.name.to_sym
     @options  = {}
     
+    @manifest = manifest
+    
     populate
   end
   
-  attr_reader :name, :type, :options, :resource, :names
+  attr_reader :name, :type, :options, :resource, :names, :urls, :manifest
   attr_accessor :hidden
   attr_accessor :label
   
@@ -30,6 +32,10 @@ class Dormouse::Property
   
   def names
     @names ||= Dormouse::Names.new(self)
+  end
+  
+  def urls
+    @urls ||= Dormouse::Urls.new(self)
   end
   
 end

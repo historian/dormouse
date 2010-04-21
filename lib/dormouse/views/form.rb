@@ -21,9 +21,9 @@ class Dormouse::Views::Form < Dormouse::Views::Base
       
       @save_url = begin
         if object.new_record?
-          File.dirname(request.path)
+          manifest.urls.create(@parent)
         else
-          manifest.object_url(object)
+          manifest.urls.update(object)
         end
       end
       

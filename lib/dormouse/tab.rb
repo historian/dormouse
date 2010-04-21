@@ -11,8 +11,7 @@ class Dormouse::Tab
   end
   
   def url_for_object(object)
-    @suffix ||= @property.resource.to_s.split('::').last.tableize
-    "#{manifest.object_url(object)}/#{@suffix}"
+    property.urls.index(object)
   end
   
 end

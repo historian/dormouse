@@ -24,9 +24,17 @@ class Dormouse::Names
     @identifier[options] ||= begin
       if @property
         if @property.plural?
-          @property.name.to_s.singularize
+          if options[:plural]
+            @property.name.to_s
+          else
+            @property.name.to_s.singularize
+          end
         else
-          @property.name.to_s
+          if options[:plural]
+            @property.name.to_s
+          else
+            @property.name.to_s.pluralize
+          end
         end
       else
         class_name(options).gsub('::', '').underscore

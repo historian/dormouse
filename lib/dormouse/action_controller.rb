@@ -98,7 +98,7 @@ module Dormouse::ActionController::Actions
       end
     end
     
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index(@parent)
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   end
@@ -116,11 +116,11 @@ module Dormouse::ActionController::Actions
       end
     end
     
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   rescue ActiveRecord::RecordInvalid => e
     manifest.render_form(self, e.record)
   rescue ActiveRecord::RecordNotFound => e
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   end
   
   def destroy
@@ -135,9 +135,9 @@ module Dormouse::ActionController::Actions
       end
     end
     
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   rescue ActiveRecord::RecordNotFound => e
-    redirect_to manifest.collection_url
+    redirect_to manifest.urls.index
   end
   
 private
