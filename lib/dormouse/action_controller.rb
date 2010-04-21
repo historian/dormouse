@@ -72,8 +72,9 @@ module Dormouse::ActionController::Actions
   end
   
   def create
-    singular_param = @manifest.names.param
-    plural_param   = @manifest.names.params
+    names = @manifest.names
+    singular_param = names.param
+    plural_param   = names.params
     
     collection = params[plural_param] || []
     collection.push params[singular_param] if params[singular_param]
@@ -92,8 +93,9 @@ module Dormouse::ActionController::Actions
   end
   
   def update
-    singular_param = @manifest.names.param
-    plural_param   = @manifest.names.params
+    names = @manifest.names
+    singular_param = names.param
+    plural_param   = names.params
     
     collection = params[plural_param] || {}
     collection[params[:id]] = params[singular_param] if params[singular_param]

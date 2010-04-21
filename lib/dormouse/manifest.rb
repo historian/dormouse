@@ -58,6 +58,7 @@ class Dormouse::Manifest
     when :list then render_list(controller, collection)
     when :tree then render_tree(controller, collection)
     when :grid then render_grid(controller, collection)
+    else raise "Unknown collection type: #{collection_type}"
     end
   end
   
