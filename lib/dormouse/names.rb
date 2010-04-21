@@ -62,12 +62,12 @@ class Dormouse::Names
   end
   
   def controller_name
-    @controller_name ||= "#{class_name(:short => true)}::Resources".underscore
+    @controller_name ||= "#{class_name}::Resources".underscore
   end
   
   def controller_namespace
     @controller_namespace ||= begin
-      class_namespace.underscore
+      class_namespace.underscore.gsub('_', '/')
     end
   end
   

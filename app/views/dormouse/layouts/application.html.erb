@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dormouse</title>
+  <style type="text/css" media="screen">
+
+body {
+  margin: 50px;
+}
+
+#menu {
+  width: 250px;
+  position: fixed;
+  top:  50px;
+  left: 50px;
+}
+
+#content {
+  margin-left: 250px;
+}
+
+#content #actions {
+  width: 250px;
+  position: fixed;
+  top:   50px;
+  right: 50px;
+}
+
+  </style>
+</head>
+<body>
+
+<ul id="menu">
+  <% Dormouse.menu.each do |item| %>
+    <li><%= link_to item.name, item.url %></li>
+  <% end %>
+</ul>
+
+<div id="content">
+  <%= yield %>
+</div>
+
+</body>
+</html>

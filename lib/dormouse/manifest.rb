@@ -51,7 +51,9 @@ class Dormouse::Manifest
   end
   
   def controller_superclass
-    ApplicationController
+    @controller_superclass ||= begin
+      Dormouse.options[:controller_superclass].constantize
+    end
   end
   
   def controller_class
@@ -59,7 +61,7 @@ class Dormouse::Manifest
   end
   
   def style
-    @style ||= 'dormouse'
+    @style ||= Dormouse.options[:style]
   end
   
   def collection_type

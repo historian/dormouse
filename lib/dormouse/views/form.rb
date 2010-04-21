@@ -19,7 +19,7 @@ class Dormouse::Views::Form < Dormouse::Views::Base
       @widgets  = widgets
       @tabs     = tabs
       
-      render :template => "#{manifest.style}/views/form", :layout => "#{manifest.style}/layouts/dormouse"
+      render :template => "#{manifest.style}/views/form", :layout => "#{manifest.style}/layouts/application"
     end
   end
   

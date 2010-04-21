@@ -14,15 +14,10 @@ module Dormouse::ActionController
   
   def self.build_routes(manifest, map)
     name       = manifest.names.identifier(:plural => true, :short => true)
-    namespaces = manifest.names.controller_namespace.split('/')
+    namespace  = manifest.names.controller_namespace
     controller = manifest.names.controller_name
     
-    namespaces.inject(map) do |map, namespace|
-      map.namespace(namespace) { |map| map }
-      map
-    end
-    
-    options = { :controller => controller, :collection => { :update => :put, :destroy => :delete } }
+    options = { :controller => controller, :collection => { :update => :put, :destroy => :delete }, :path_prefix => "/#{namespace}" }
     map.resources name.to_sym, options do |subresource|
       manifest.each do |property|
         
@@ -44,14 +39,7 @@ module Dormouse::ActionController
     controller = property.names.controller_name
     
     options = { :controller => controller, :only => [:index, :new, :create] }
-    map.resources name.to_sym, options do |map|
-      manifest.each do |property|
-        
-        next unless property.resource
-        build_sub_routes(manifest, property, map)
-        
-      end
-    end
+    map.resources name.to_sym, options
   end
   
 end

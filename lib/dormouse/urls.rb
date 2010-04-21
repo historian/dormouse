@@ -52,7 +52,7 @@ protected
       else
         namespace = @resource.to_s.split('::')
         namespace.pop
-        namespace = namespace.join('/').underscore
+        namespace = namespace.join('/').underscore.gsub('_', '/')
       end
     end
   end
