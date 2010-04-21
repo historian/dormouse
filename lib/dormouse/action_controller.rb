@@ -66,8 +66,7 @@ module Dormouse::ActionController::Actions
   end
   
   def index
-    collection = (@parent ? @parent.__send__(@parent_association).all : nil)
-    manifest.render_collection(self, collection)
+    manifest.render_collection(self, lookup_collection)
   end
   
   def show
@@ -157,6 +156,40 @@ private
         break
       end
     end
+  end
+  
+  def lookup_collection
+    collection = (@parent ? @parent.__send__(@parent_association) :
+                            manifest.resource)
+    
+    order = "-updated_at"
+    
+    if query = params[:q]
+      collection = collection.dormouse_search(manifest, query)
+      order = manifest.primary_name_column
+    end
+    
+    if letter = params[:l]
+      collection = collection.dormouse_search(manifest, letter[0,1])
+      order = manifest.primary_name_column
+    end
+    
+    if filter = params[:f] and filter = manifest.filters[filters.to_sym]
+      collection = collection.dormouse_filter(manifest, filter)
+      order = manifest.primary_name_column
+    end
+    
+    if page = params[:p]
+      collection = collection.dormouse_paginate(manifest, page)
+      order = manifest.primary_name_column
+    else
+      collection = collection.dormouse_paginate(manifest, 1)
+    end
+    
+    order = params[:o] unless params[:o].blank?
+    collection = collection.dormouse_order(manifest, order)
+    
+    collection.all
   end
   
 end
