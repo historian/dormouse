@@ -27,7 +27,13 @@ class Dormouse::Views::Form < Dormouse::Views::Base
         end
       end
       
-      render :template => "#{manifest.style}/views/form", :layout => "#{manifest.style}/layouts/dormouse"
+      if request.xhr?
+        render :template => "#{manifest.style}/views/form",
+               :layout   => false
+      else
+        render :template => "#{manifest.style}/views/form",
+               :layout   => "#{manifest.style}/layouts/dormouse"
+      end
     end
   end
   
