@@ -48,7 +48,7 @@ module Dormouse::ActionController::Actions
   
   def self.included(base)
     base.class_eval do
-      helper_method :manifest
+      helper_method :manifest, :save_url
       before_filter :lookup_parent, :only => [:index, :new, :create]
     end
   end
