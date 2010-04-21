@@ -142,6 +142,14 @@ module Dormouse::ActionController::Actions
   
 private
   
+  def save_url
+    if @object.new_record?
+      manifest.urls.create(@parent)
+    else
+      manifest.urls.update(@object)
+    end
+  end
+  
   def manifest
     self.class.manifest
   end
