@@ -1,15 +1,8 @@
 class Dormouse::Property
   
-  def initialize(manifest, column_or_association)
-    if ActiveRecord::Reflection::MacroReflection === column_or_association
-      @type     = column_or_association.macro
-      @resource = column_or_association.klass
-    else
-      @type     = column_or_association.type
-    end
-    @name     = column_or_association.name.to_sym
+  def initialize(manifest, target)
+    @target   = target
     @options  = {}
-    
     @manifest = manifest
     
     populate
@@ -22,12 +15,48 @@ class Dormouse::Property
   def populate(options={})
     @hidden  = options.delete(:hidden) if options.key?(:hidden)
     @label   = options.delete(:label)  if options.key?(:label)
-    @label   = @name.to_s.humanize     if @label.nil?
+    @label   = self.name.to_s.humanize if @label.nil?
     @options = @options.merge(options)
+  end
+  
+  def reflection?
+    ActiveRecord::Reflection::MacroReflection === @target
+  end
+  
+  def association?
+    ActiveRecord::Reflection::AssociationReflection === @target
+  end
+  
+  def type
+    @type ||= begin
+      if reflection?
+        @target.macro
+      else
+        @target.type
+      end
+    end
+  end
+  
+  def name
+    @name ||= @target.name.to_sym
+  end
+  
+  def resource
+    @resource ||= begin
+      if association? and !polymorphic?
+        @target.klass
+      else
+        nil
+      end
+    end
   end
   
   def plural?
     [:has_many, :has_and_belongs_to_many].include? @type
+  end
+  
+  def polymorphic?
+    association? and @target.options[:polymorphic]
   end
   
   def names
