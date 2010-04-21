@@ -2,7 +2,7 @@ module Dormouse::ActiveRecord
   
   def self.included(base)
     base.extend Meta
-    if Rails.repond_to?(:application)
+    if Rails.respond_to?(:application)
       base.setup_dormouse_rails_30
     else
       base.setup_dormouse_rails_23
