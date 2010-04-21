@@ -55,77 +55,77 @@ module Dormouse::ActionController::Actions
   end
   
   def index
-    manifest.render_collection(self, lookup_collection)
+    @manifest.render_collection(self, lookup_collection)
   end
   
   def show
-    manifest.render_form(self)
+    @manifest.render_form(self)
   end
   
   def new
     object = (@parent ? @parent.__send__(@parent_association).build : nil)
-    manifest.render_form(self, object)
+    @manifest.render_form(self, object)
   end
   
   def edit
-    manifest.render_form(self)
+    @manifest.render_form(self)
   end
   
   def create
-    singular_param = manifest.names.param
-    plural_param   = manifest.names.params
+    singular_param = @manifest.names.param
+    plural_param   = @manifest.names.params
     
     collection = params[plural_param] || []
     collection.push params[singular_param] if params[singular_param]
     
-    manifest.resource.transaction do
+    @manifest.resource.transaction do
       collection.each do |attrs|
         object = (@parent ? @parent.__send__(@parent_association).build(attrs) :
-                            manifest.resource.new(attrs))
+                            @manifest.resource.new(attrs))
         object.save!
       end
     end
     
-    redirect_to manifest.urls.index(@parent)
+    redirect_to @manifest.urls.index(@parent)
   rescue ActiveRecord::RecordInvalid => e
-    manifest.render_form(self, e.record)
+    @manifest.render_form(self, e.record)
   end
   
   def update
-    singular_param = manifest.names.param
-    plural_param   = manifest.names.params
+    singular_param = @manifest.names.param
+    plural_param   = @manifest.names.params
     
     collection = params[plural_param] || {}
     collection[params[:id]] = params[singular_param] if params[singular_param]
     
-    manifest.resource.transaction do
+    @manifest.resource.transaction do
       collection.each do |id, attrs|
-        manifest.resource.find(id).update_attributes! attrs
+        @manifest.resource.find(id).update_attributes! attrs
       end
     end
     
-    redirect_to manifest.urls.index
+    redirect_to @manifest.urls.index
   rescue ActiveRecord::RecordInvalid => e
-    manifest.render_form(self, e.record)
+    @manifest.render_form(self, e.record)
   rescue ActiveRecord::RecordNotFound => e
-    redirect_to manifest.urls.index
+    redirect_to @manifest.urls.index
   end
   
   def destroy
-    plural_param   = manifest.names.param_ids
+    plural_param   = @manifest.names.param_ids
     
     ids = params[plural_param] || []
     ids.push(params[:id]) if params[:id]
     
-    manifest.resource.transaction do
+    @manifest.resource.transaction do
       ids.each do |id|
-        manifest.resource.find(id).destroy
+        @manifest.resource.find(id).destroy
       end
     end
     
-    redirect_to manifest.urls.index
+    redirect_to @manifest.urls.index
   rescue ActiveRecord::RecordNotFound => e
-    redirect_to manifest.urls.index
+    redirect_to @manifest.urls.index
   end
   
 private
