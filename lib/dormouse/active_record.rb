@@ -80,7 +80,11 @@ module Dormouse::ActiveRecord::Meta
   
   def manifest(&block)
     @manifest ||= Dormouse::Manifest.new(self)
-    Dormouse::DSL.new(@manifest).instance_eval(&block) if block
+    if block
+      Dormouse::DSL.new(@manifest).instance_eval(&block)
+      @manifest.widgets.reset!
+      @manifest.tabs.reset!
+    end
     @manifest
   end
   

@@ -16,3 +16,25 @@ class Dormouse::Tab
   end
   
 end
+
+# @author Simon Menke
+class Dormouse::Tabs < Array
+  
+  def initialize(manifest)
+    @manifest = manifest
+  end
+  
+  def reset!
+    clear
+    
+    @manifest.each do |property|
+      next if property.hidden
+      next unless [:has_many, :has_and_belongs_to_many].include? property.type
+      next if property.options[:inline]
+      self << Dormouse::Tab.new(@manifest, property)
+    end
+    
+    self
+  end
+  
+end

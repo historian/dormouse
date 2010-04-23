@@ -57,6 +57,7 @@ module Dormouse::ActionController::Actions
   
   def index
     @collection_count, @collection = *lookup_collection
+    
     if request.xhr?
       render \
         :template => "#{@manifest.style}/views/#{@manifest.collection_type}",
@@ -70,75 +71,91 @@ module Dormouse::ActionController::Actions
   
   def show
     @object = manifest.resource.find(params[:id])
-    @manifest.render_form(self, @object)
+    
+    if request.xhr?
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => false
+    else
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => "#{@manifest.style}/layouts/application"
+    end
   end
   
   def new
-    @object = (@parent ? @parent.__send__(@parent_association).build :
-                         @manifest.resource.new)
-    @manifest.render_form(self, @object)
+    if @parent
+      @object = @parent.__send__(@parent_association).build
+    else
+      @object = @manifest.resource.new
+    end
+    
+    if request.xhr?
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => false
+    else
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => "#{@manifest.style}/layouts/application"
+    end
   end
   
   def edit
     @object = manifest.resource.find(params[:id])
-    @manifest.render_form(self, @object)
+    
+    if request.xhr?
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => false
+    else
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => "#{@manifest.style}/layouts/application"
+    end
   end
   
   def create
-    names = @manifest.names
-    singular_param = names.param
-    plural_param   = names.params
+    attrs = params[@manifest.names.param]
     
-    collection = params[plural_param] || []
-    collection.push params[singular_param] if params[singular_param]
-    
-    @manifest.resource.transaction do
-      collection.each do |attrs|
-        object = (@parent ? @parent.__send__(@parent_association).build(attrs) :
-                            @manifest.resource.new(attrs))
-        object.save!
-      end
+    if @parent
+      @object = @parent.__send__(@parent_association).create!(attrs)
+    else
+      @object = @manifest.resource.create!(attrs)
     end
     
     redirect_to @manifest.urls.index(@parent)
+    
   rescue ActiveRecord::RecordInvalid => e
-    @manifest.render_form(self, e.record)
+    @object = e.record
+    
+    if request.xhr?
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => false
+    else
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => "#{@manifest.style}/layouts/application"
+    end
   end
   
   def update
-    names = @manifest.names
-    singular_param = names.param
-    plural_param   = names.params
+    attrs = params[@manifest.names.param]
     
-    collection = params[plural_param] || {}
-    collection[params[:id]] = params[singular_param] if params[singular_param]
-    
-    @manifest.resource.transaction do
-      collection.each do |id, attrs|
-        @manifest.resource.find(id).update_attributes! attrs
-      end
-    end
+    @object = @manifest.resource.find(params[:id]).update_attributes!(attrs)
     
     redirect_to @manifest.urls.index
+    
   rescue ActiveRecord::RecordInvalid => e
-    @manifest.render_form(self, e.record)
-  rescue ActiveRecord::RecordNotFound => e
-    redirect_to @manifest.urls.index
+    @object = e.record
+    
+    if request.xhr?
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => false
+    else
+      render :template => "#{@manifest.style}/views/form",
+             :layout   => "#{@manifest.style}/layouts/application"
+    end
   end
   
   def destroy
-    plural_param   = @manifest.names.param_ids
-    
-    ids = params[plural_param] || []
-    ids.push(params[:id]) if params[:id]
-    
-    @manifest.resource.transaction do
-      ids.each do |id|
-        @manifest.resource.find(id).destroy
-      end
-    end
+    @manifest.resource.find(params[:id]).destroy
     
     redirect_to @manifest.urls.index
+    
   rescue ActiveRecord::RecordNotFound => e
     redirect_to @manifest.urls.index
   end

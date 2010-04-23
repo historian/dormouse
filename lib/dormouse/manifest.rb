@@ -11,12 +11,17 @@ class Dormouse::Manifest
     @order      = []
     @names      = Dormouse::Names.new(self)
     @urls       = Dormouse::Urls.new(self)
+    @widgets    = Dormouse::Widgets.new(self)
+    @tabs       = Dormouse::Tabs.new(self)
     
     generate_default_properties
     
     @style               = Dormouse.options[:style]
     @collection_type     = :list
     @primary_name_column = @properties[@order.first].name
+    
+    @widgets.reset!
+    @tabs.reset!
   end
   
   # the resource class (must be an instance of ActiveRecord::Base)
@@ -34,6 +39,14 @@ class Dormouse::Manifest
   # A helper for building urls to this resource.
   # @return [Dormouse::Urls]
   attr_reader :urls
+  
+  # The list of form widgets.
+  # @return [Dormouse::Widgets]
+  attr_reader :widgets
+  
+  # The list of tabs.
+  # @return [Dormouse::Tabs]
+  attr_reader :tabs
   
   # The name of the column representing the primary name of this resource. this is displayed as the clickable link in a list or tree.
   # @return [Symbol]
@@ -54,12 +67,6 @@ class Dormouse::Manifest
   # Mounts this resource. <tt>map</tt> must be a route mapper. this method draws all relevant routes for this resource.
   def mount(map)
     Dormouse::ActionController.build(self, map)
-  end
-  
-  # Render a form
-  def render_form(controller, object=nil)
-    @form_view ||= Dormouse::Views::Form.new(self)
-    @form_view.render_in_controller(controller, object)
   end
   
   # get a property by name. <tt>:_primary</tt> and <tt>:_secondary</tt> are shortcuts to the <tt>primary_name_column</tt> and <tt>secondary_name_column</tt> properties.

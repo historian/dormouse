@@ -1,5 +1,20 @@
 # @author Simon Menke
-module Dormouse::Widgets
+class Dormouse::Widgets < Array
+  
+  def initialize(manifest)
+    @manifest = manifest
+  end
+  
+  def reset!
+    clear
+    
+    @manifest.each do |property|
+      widget_klass = Dormouse::Widgets[property.type]
+      self << widget_klass.new(@manifest, property) if widget_klass
+    end
+    
+    self
+  end
   
   class << self
     def [](name)

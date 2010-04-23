@@ -12,7 +12,6 @@ module Dormouse
   require 'dormouse/menu'
   require 'dormouse/tab'
   require 'dormouse/widgets'
-  require 'dormouse/views'
   
   require 'dormouse/active_record'
   require 'dormouse/action_controller'
