@@ -50,12 +50,22 @@ module Dormouse::ActionController::Actions
   def self.included(base)
     base.class_eval do
       helper_method :manifest, :save_url
+      before_filter :assign_manifest
       before_filter :lookup_parent, :only => [:index, :new, :create]
     end
   end
   
   def index
-    @manifest.render_collection(self, lookup_collection)
+    @collection_count, @collection = *lookup_collection
+    if request.xhr?
+      render \
+        :template => "#{@manifest.style}/views/#{@manifest.collection_type}",
+        :layout   => false
+    else
+      render \
+        :template => "#{@manifest.style}/views/#{@manifest.collection_type}",
+        :layout   => "#{@manifest.style}/layouts/application"
+    end
   end
   
   def show
@@ -140,8 +150,12 @@ private
     end
   end
   
+  def assign_manifest
+    @manifest = self.class.manifest
+  end
+  
   def manifest
-    self.class.manifest
+    @manifest
   end
   
   def lookup_parent
@@ -161,6 +175,7 @@ private
                             manifest.resource)
     
     order = "-#{manifest[:updated_at].name(:table => true)}"
+    count = 0
     
     if query = params[:q]
       collection = collection.dormouse_search(manifest, query)
@@ -177,6 +192,8 @@ private
       order = manifest[:_primary].name(:table => true)
     end
     
+    count = collection.count
+    
     if page = params[:p]
       collection = collection.dormouse_paginate(manifest, page)
       order = manifest[:_primary].name(:table => true)
@@ -187,7 +204,7 @@ private
     order = params[:o] unless params[:o].blank?
     collection = collection.dormouse_order(manifest, order)
     
-    collection.all
+    [count, collection.all]
   end
   
 end

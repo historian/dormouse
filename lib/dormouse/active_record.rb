@@ -47,31 +47,35 @@ module Dormouse::ActiveRecord::Meta
   end
   
   def setup_dormouse_rails_30
-    scope :dormouse_search, lambda { |manifest, query|
+    extend Rails30
+  end
+  
+  module Rails30
+    def dormouse_search(manifest, query)
       if query.size > 2
         query = "%#{query}%"
       else
         query = "#{query}%"
       end
       where("#{manifest[:_primary].name(:table => true)} LIKE ?", query)
-    }
+    end
     
-    scope :dormouse_paginate, lambda { |manifest, page|
+    def dormouse_paginate(manifest, page)
       limit(25).offset((page.to_i - 1) * 25)
-    }
+    end
     
-    scope :dormouse_order, lambda { |manifest, order|
+    def dormouse_order(manifest, order)
       if order[0,1] == '-'
         order = "#{order[1..-1]} DESC"
       else
         order = "#{order} ASC"
       end
       order(order)
-    }
+    end
     
-    scope :dormouse_filter, lambda { |manifest, filter|
+    def dormouse_filter(manifest, filter)
       instance_eval(manifest, &filter)
-    }
+    end
   end
   
   def manifest(&block)

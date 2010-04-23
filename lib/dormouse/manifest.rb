@@ -3,7 +3,7 @@ class Dormouse::Manifest
   
   include Enumerable
   
-  COLLECTION_TYPES = [:list]
+  COLLECTION_TYPES = [:list, :tree, :grid]
   
   def initialize(resource)
     @resource   = resource
@@ -13,6 +13,10 @@ class Dormouse::Manifest
     @urls       = Dormouse::Urls.new(self)
     
     generate_default_properties
+    
+    @style               = Dormouse.options[:style]
+    @collection_type     = :list
+    @primary_name_column = @properties[@order.first].name
   end
   
   # the resource class (must be an instance of ActiveRecord::Base)
@@ -50,16 +54,6 @@ class Dormouse::Manifest
   # Mounts this resource. <tt>map</tt> must be a route mapper. this method draws all relevant routes for this resource.
   def mount(map)
     Dormouse::ActionController.build(self, map)
-  end
-  
-  # Render a collection
-  def render_collection(controller, collection=nil)
-    case collection_type.to_sym
-    when :list then render_list(controller, collection)
-    when :tree then render_tree(controller, collection)
-    when :grid then render_grid(controller, collection)
-    else raise "Unknown collection type: #{collection_type}"
-    end
   end
   
   # Render a form
@@ -100,28 +94,11 @@ class Dormouse::Manifest
     @controller_class ||= names.controller_class_name.constantize
   end
   
-  def style
-    @style ||= Dormouse.options[:style]
-  end
-  
-  def collection_type
-    @collection_type ||= :list
-  end
-  
-  def primary_name_column
-    @primary_name_column ||= @properties[@order.first].name
-  end
-  
   def inspect
     "#<#{self}: #{@resource}>"
   end
   
 private
-  
-  def render_list(controller, collection=nil)
-    @list_view ||= Dormouse::Views::List.new(self)
-    @list_view.render_in_controller(controller, collection)
-  end
   
   def generate_default_properties
     resource.content_columns.each do |column|

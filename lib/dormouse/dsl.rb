@@ -125,7 +125,7 @@ class Dormouse::DSL
     
     order_options = options.slice(:after, :before, :top, :bottom)
     options.except!(:after, :before, :top, :bottom)
-    case 
+    case
     when hook = order_options[:after]
       idx = @manifest.order.index(hook.to_sym) || (@manifest.size - 1)
       @manifest.order.delete(property)
@@ -136,7 +136,7 @@ class Dormouse::DSL
       @manifest.order.insert(idx, property)
     when order_options[:top]
       @manifest.order.delete(property)
-      @manifest.order.insert(0, property)
+      @manifest.order.unshift(property)
     when order_options[:bottom]
       @manifest.order.delete(property)
       @manifest.order.push(property)
