@@ -38,6 +38,13 @@ rescue LoadError
   puts "YARD not available. Install it with: sudo gem install yard"
 end
 
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'test'
+  test.pattern = 'test/**/*_test.rb'
+  test.verbose = true
+end
+
 task :load_version do
   require File.expand_path('../lib/dormouse/version', __FILE__)
 end
