@@ -21,7 +21,9 @@ ActiveRecord::Base.establish_connection({
 
 ActiveRecord::Schema.define do
   create_table "admin_blog_post", :force => true do |t|
-    t.column "name",  :text
-    t.column "email", :text
+    t.column "title", :string
+    t.column "body",  :text
   end
 end
+
+require File.expand_path("../fixtures/models", __FILE__)
