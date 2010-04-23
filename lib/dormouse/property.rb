@@ -1,10 +1,11 @@
 # @author Simon Menke
 class Dormouse::Property
   
-  def initialize(manifest, target)
-    @target   = target
-    @options  = {}
-    @manifest = manifest
+  def initialize(manifest, target, table_name=nil)
+    @target     = target
+    @options    = {}
+    @manifest   = manifest
+    @table_name = table_name
     
     populate
   end
@@ -16,6 +17,7 @@ class Dormouse::Property
   def populate(options={})
     @hidden  = options.delete(:hidden) if options.key?(:hidden)
     @label   = options.delete(:label)  if options.key?(:label)
+    @type    = options.delete(:type)   if options.key?(:type)
     @label   = self.name.to_s.humanize if @label.nil?
     @options = @options.merge(options)
   end
@@ -44,7 +46,9 @@ class Dormouse::Property
   
   def name(options={})
     @name ||= @target.name.to_sym
-    if options[:table]
+    if options[:ids]
+      "#{@name.to_s.singularize}_ids".to_sym
+    elsif options[:table]
       "#{table}.#{@name}"
     else
       @name

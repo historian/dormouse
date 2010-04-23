@@ -107,11 +107,27 @@ private
       @order << property.name
     end
     
+    translations_model = nil
     resource.reflect_on_all_associations.each do |association|
+      if association.name.to_s == 'globalize_translations'
+        translations_model = association.klass
+        next
+      end
+      
       property = Dormouse::Property.new(self, association)
       @properties[property.name] = property
       @order << property.name
     end
+    
+    if translations_model
+      translations_model.content_columns.each do |column|
+        next if %w( created_at updated_at locale ).include? column.name.to_s
+        property = Dormouse::Property.new(self, column, translations_model.table_name)
+        @properties[property.name] = property
+        @order << property.name
+      end
+    end
+    
   rescue ActiveRecord::StatementInvalid => e
     puts "#{e.message}"
   end

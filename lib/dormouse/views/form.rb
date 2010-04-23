@@ -43,7 +43,7 @@ class Dormouse::Views::Form < Dormouse::Views::Base
     @tabs ||= begin
       manifest.inject([]) do |memo, property|
         
-        if property.type == :has_many and !property.options[:inline]
+        if !property.hidden and property.type == :has_many and !property.options[:inline]
           memo << Dormouse::Tab.new(manifest, property)
         end
         

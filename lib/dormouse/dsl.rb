@@ -100,7 +100,7 @@ class Dormouse::DSL
   #   @return [Dormouse::DSL] self
   def order(*properties)
     options = properties.extract_options!
-    if options[:after]
+    if options[:after] or options[:top]
       properties = properties.reverse
     end
     properties.each do |property|

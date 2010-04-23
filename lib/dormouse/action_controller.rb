@@ -69,16 +69,19 @@ module Dormouse::ActionController::Actions
   end
   
   def show
-    @manifest.render_form(self)
+    @object = manifest.resource.find(params[:id])
+    @manifest.render_form(self, @object)
   end
   
   def new
-    object = (@parent ? @parent.__send__(@parent_association).build : nil)
-    @manifest.render_form(self, object)
+    @object = (@parent ? @parent.__send__(@parent_association).build :
+                         @manifest.resource.new)
+    @manifest.render_form(self, @object)
   end
   
   def edit
-    @manifest.render_form(self)
+    @object = manifest.resource.find(params[:id])
+    @manifest.render_form(self, @object)
   end
   
   def create
@@ -177,12 +180,12 @@ private
     order = "-#{manifest[:updated_at].name(:table => true)}"
     count = 0
     
-    if query = params[:q]
+    if query = params[:q] and !query.blank?
       collection = collection.dormouse_search(manifest, query)
       order = manifest[:_primary].name(:table => true)
     end
     
-    if letter = params[:l]
+    if letter = params[:l] and !letter.blank?
       collection = collection.dormouse_search(manifest, letter[0,1])
       order = manifest[:_primary].name(:table => true)
     end
@@ -194,7 +197,7 @@ private
     
     count = collection.count
     
-    if page = params[:p]
+    if page = params[:p] and !page.blank?
       collection = collection.dormouse_paginate(manifest, page)
       order = manifest[:_primary].name(:table => true)
     else
