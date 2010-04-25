@@ -56,6 +56,55 @@ module Dormouse::ActionController::Actions
   end
   
   def index
+    respond_to do |format|
+      format.html { html_index }
+      format.json { json_index }
+    end
+  end
+  
+  def show
+    respond_to do |format|
+      format.html { html_show }
+      format.json { json_show }
+    end
+  end
+  
+  def new
+    respond_to do |format|
+      format.html { html_new }
+    end
+  end
+  
+  def edit
+    respond_to do |format|
+      format.html { html_edit }
+    end
+  end
+  
+  def create
+    respond_to do |format|
+      format.html { html_create }
+      format.json { json_create }
+    end
+  end
+  
+  def update
+    respond_to do |format|
+      format.html { html_update }
+      format.json { json_update }
+    end
+  end
+  
+  def destroy
+    respond_to do |format|
+      format.html { html_destroy }
+      format.json { json_destroy }
+    end
+  end
+  
+protected
+  
+  def html_index
     @collection_count, @collection = *lookup_collection
     
     if request.xhr?
@@ -69,7 +118,12 @@ module Dormouse::ActionController::Actions
     end
   end
   
-  def show
+  def json_index
+    @collection_count, @collection = *lookup_collection
+    render :json => { :collection => @collection, :count => @collection_count }
+  end
+  
+  def html_show
     @object = manifest.resource.find(params[:id])
     
     if request.xhr?
@@ -81,7 +135,12 @@ module Dormouse::ActionController::Actions
     end
   end
   
-  def new
+  def json_show
+    @object = manifest.resource.find(params[:id])
+    render :json => @object
+  end
+  
+  def html_new
     if @parent
       @object = @parent.__send__(@parent_association).build
     else
@@ -97,7 +156,7 @@ module Dormouse::ActionController::Actions
     end
   end
   
-  def edit
+  def html_edit
     @object = manifest.resource.find(params[:id])
     
     if request.xhr?
@@ -109,7 +168,7 @@ module Dormouse::ActionController::Actions
     end
   end
   
-  def create
+  def html_create
     attrs = params[@manifest.names.param]
     
     if @parent
@@ -132,7 +191,40 @@ module Dormouse::ActionController::Actions
     end
   end
   
-  def update
+  def json_create
+    if collection = params[@manifest.names.params]
+      objects = []
+      
+      @manifest.resource.transaction do
+        collection.each do |attrs|
+          
+          if @parent
+            objects << @parent.__send__(@parent_association).create!(attrs)
+          else
+            objects << @manifest.resource.create!(attrs)
+          end
+          
+        end
+      end
+      
+      render :json => objects
+      
+    elsif attrs = params[@manifest.names.param]
+      
+      if @parent
+        object = @parent.__send__(@parent_association).create!(attrs)
+      else
+        object = @manifest.resource.create!(attrs)
+      end
+      
+      render :json => object
+      
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    render :json => e.record.errors
+  end
+  
+  def html_update
     attrs = params[@manifest.names.param]
     
     @object = @manifest.resource.find(params[:id]).update_attributes!(attrs)
@@ -151,13 +243,61 @@ module Dormouse::ActionController::Actions
     end
   end
   
-  def destroy
+  def json_update
+    if collection = params[@manifest.names.params]
+      objects = @manifest.resource.find(collection.keys)
+      
+      @manifest.resource.transaction do
+        objects.each do |object|
+          
+          object.update_attributes! collection[object.id.to_s]
+          
+        end
+      end
+      
+      render :json => objects
+      
+    elsif attrs = params[@manifest.names.param]
+      object = @manifest.resource.find(params[:id])
+      object.update_attributes! attrs
+      render :json => object
+      
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    render :json => e.record.errors
+  end
+  
+  def html_destroy
     @manifest.resource.find(params[:id]).destroy
     
     redirect_to @manifest.urls.index
     
   rescue ActiveRecord::RecordNotFound => e
     redirect_to @manifest.urls.index
+  end
+  
+  def json_destroy
+    if collection = params[@manifest.names.param_ids]
+      objects = @manifest.resource.find(collection)
+      
+      @manifest.resource.transaction do
+        objects.each do |object|
+          
+          object.destroy
+          
+        end
+      end
+      
+      render :json => objects
+      
+    elsif id = params[:id]
+      object = @manifest.resource.find(id)
+      object.destroy
+      render :json => object
+      
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    render :json => e.record.errors
   end
   
 private
