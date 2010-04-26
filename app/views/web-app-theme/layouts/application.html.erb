@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Web App Theme</title>
+  <style type="text/css" media="screen">
+<%= raw File.read(File.expand_path('../../assets/base.css', __FILE__)) %></style>
+  <style type="text/css" media="screen">
+<%= raw File.read(File.expand_path('../../assets/style.css', __FILE__)) %></style>
+</head>
+<body>
+  <div id="container">
+    <div id="header">
+      <h1><a href="index.html">Web App Theme</a></h1>
+      <div id="user-navigation">
+        <ul class="wat-cf">
+          
+        </ul>
+      </div>
+      <div id="main-navigation">
+        <ul class="wat-cf">
+          
+          <% Dormouse.menu.each_with_index do |item, idx| %>
+            <%= content_tag :li, :class => [('first' if idx == 0), ('active' if request.path.starts_with?(item.url))].compact.join(' ') do %>
+              <%= link_to item.name, item.url %>
+            <% end %>
+          <% end %>
+          
+        </ul>
+      </div>
+    </div>
+    <div id="wrapper" class="wat-cf">
+      <div id="main">
+        <%= yield %>
+<!--
+
+        <div class="block" id="block-forms">
+          <div class="secondary-navigation">
+            <ul class="wat-cf">
+              <li class="first"><a href="#block-text">Text</a></li>
+              <li><a href="#block-tables">Tables</a></li>
+              <li class="active"><a href="#block-forms">Forms</a></li>
+              <li><a href="#block-messages">Messages</a></li>
+              <li><a href="#block-forms-2">2 Columns Forms</a></li>
+              <li><a href="#block-lists">Lists</a></li>
+            </ul>
+          </div>
+          <div class="content">
+            <h2 class="title">Forms</h2>
+            <div class="inner">
+              <form action="#" method="get" class="form">
+                <div class="group">
+                  <label class="label">Text field</label>
+                  <input type="text" class="text_field" />
+                  <span class="description">Ex: a simple text</span>
+                </div>
+                <div class="group">
+                  <div class="fieldWithErrors">
+                    <label class="label" for="post_title">Title</label>
+                    <span class="error">can't be blank</span>
+                  </div>
+                  <input type="text" class="text_field" />
+                  <span class="description">Ex: a simple text</span>
+                </div>
+                <div class="group">
+                  <label class="label">Text area</label>
+                  <textarea class="text_area" rows="10" cols="80"></textarea>
+                  <span class="description">Write here a long text</span>
+                </div>
+                <div class="group navform wat-cf">
+                  <button class="button" type="submit">
+                    <img src="images/icons/tick.png" alt="Save" /> Save
+                  </button>
+                  <a href="#header" class="button">
+                    <img src="images/icons/cross.png" alt="Cancel"/> Cancel
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="block" id="block-messages">
+          <div class="secondary-navigation">
+            <ul class="wat-cf">
+              <li class="first"><a href="#block-text">Text</a></li>
+              <li><a href="#block-tables">Tables</a></li>
+              <li><a href="#block-forms">Forms</a></li>
+              <li class="active"><a href="#block-messages">Messages</a></li>
+              <li><a href="#block-forms-2">2 Columns Forms</a></li>
+              <li><a href="#block-lists">Lists</a></li>
+            </ul>
+          </div>
+          <div class="content">
+            <h2 class="title">Messages</h2>
+            <div class="inner">
+              <div class="flash">
+                <div class="message error">
+                  <p>Error message</p>
+                </div>
+                <div class="message warning">
+                  <p>Warning message</p>
+                </div>
+                <div class="message notice">
+                  <p>Notice message</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block" id="block-forms-2">
+          <div class="secondary-navigation">
+            <ul class="wat-cf">
+              <li class="first"><a href="#block-text">Text</a></li>
+              <li><a href="#block-tables">Tables</a></li>
+              <li><a href="#block-forms">Forms</a></li>
+              <li><a href="#block-messages">Messages</a></li>
+              <li class="active"><a href="#block-forms-2">2 Columns Forms</a></li>
+              <li><a href="#block-lists">Lists</a></li>
+            </ul>
+          </div>
+          <div class="content">
+            <h2 class="title">2 columns forms</h2>
+            <div class="inner">
+              <form action="#" method="get" class="form">
+                <div class="columns wat-cf">
+                  <div class="column left">
+                    <div class="group">
+                      <label class="label">Text field</label>
+                      <input type="text" class="text_field" />
+                    </div>
+                    <div class="group">
+                      <label class="label">Text area</label>
+                      <textarea class="text_area" rows="10" cols="80"></textarea>
+                    </div>
+                  </div>
+                  <div class="column right">
+                    <div class="group">
+                      <label class="label">Select</label>
+                      <select><option value="1">Choose...</option></select>
+                    </div>
+                    <div class="group">
+                      <label class="label">Check box</label>
+                      <div>
+                        <input type="checkbox" name="checkbox" id="checkbox_1" class="checkbox" value="1" /> <label for="checkbox_1" class="checkbox">Option 1</label>
+                      </div>
+                      <div>
+                        <input type="checkbox" name="checkbox" id="checkbox_2" class="checkbox" value="2" /> <label for="checkbox_2" class="checkbox">Option 2</label>
+                      </div>
+                    </div>
+                    <div class="group">
+                      <label class="label">Radio</label>
+                      <div>
+                        <input type="radio" name="radio" id="radio_1" class="checkbox" value="1" /> <label for="radio_1" class="radio">Option 1</label>
+                      </div>
+                      <div>
+                        <input type="radio" name="radio" id="radio_2" class="checkbox" value="2" /> <label for="radio_2" class="radio">Option 2</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="group navform wat-cf">
+                  <button class="button" type="submit">
+                    <img src="images/icons/tick.png" alt="Save" /> Save
+                  </button>
+                  <a href="#header" class="button">
+                    <img src="images/icons/cross.png" alt="Cancel"/> Cancel
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="block" id="block-lists">
+          <div class="secondary-navigation">
+            <ul class="wat-cf">
+              <li class="first"><a href="#block-text">Text</a></li>
+              <li><a href="#block-tables">Tables</a></li>
+              <li><a href="#block-forms">Forms</a></li>
+              <li><a href="#block-messages">Messages</a></li>
+              <li><a href="#block-forms-2">2 Columns Forms</a></li>
+              <li class="active"><a href="#block-lists">Lists</a></li>
+            </ul>
+          </div>
+          <div class="content">
+            <h2 class="title">Lists</h2>
+            <div class="inner">
+              <ul class="list">
+                <li>
+                  <div class="left">
+                    <a href="#"><img class="avatar" src="images/avatar.png" alt="avatar" /></a>
+                  </div>
+                  <div class="item">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                  </div>
+                </li>
+                <li>
+                  <div class="left">
+                    <a href="#"><img class="avatar" src="images/avatar.png" alt="avatar" /></a>
+                  </div>
+                  <div class="item">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                  </div>
+                </li>
+                <li>
+                  <div class="left">
+                    <a href="#"><img class="avatar" src="images/avatar.png" alt="avatar" /></a>
+                  </div>
+                  <div class="item">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+-->
+        <div id="footer">
+          <div class="block">
+            <p>Copyright &copy; 2010 Simon Menke.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="sidebar">
+        <div class="block">
+          <h3>Simple Block</h3>
+          <div class="content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+          </div>
+        </div>
+        
+        <%= yield :actions %>
+        
+        <div class="block notice">
+          <h4>Notice Title</h4>
+          <p>Morbi posuere urna vitae nunc. Curabitur ultrices, lorem ac aliquam blandit, lectus eros hendrerit eros, at eleifend libero ipsum hendrerit urna. Suspendisse viverra. Morbi ut magna. Praesent id ipsum. Sed feugiat ipsum ut felis. Fusce vitae nibh sed risus commodo pulvinar. Duis ut dolor. Cras ac erat pulvinar tortor porta sodales. Aenean tempor venenatis dolor.</p>
+        </div>
+        <div class="block">
+          <div class="sidebar-block">
+            <h4>Sidebar Inner block Title</h4>
+            <p>Morbi posuere urna vitae nunc. Curabitur ultrices, lorem ac <a href="#">aliquam blandit</a>, lectus eros hendrerit eros, at eleifend libero ipsum hendrerit urna. Suspendisse viverra. Morbi ut magna. Praesent id ipsum. Sed feugiat ipsum ut felis. Fusce vitae nibh sed risus commodo pulvinar. Duis ut dolor. Cras ac erat pulvinar tortor porta sodales. Aenean tempor venenatis dolor.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

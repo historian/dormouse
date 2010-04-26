@@ -1,0 +1,4 @@
+<% div_for(object, property.name, :class => property.type) do %>
+  <%= form.label(property.name, property.label) if property.label %>
+  <%= form.datetime_select(property.name, property.options) %>
+<% end %>

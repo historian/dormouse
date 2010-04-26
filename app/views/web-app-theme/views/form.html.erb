@@ -1,0 +1,20 @@
+<ul id="tabs">
+  <% @manifest.tabs.each do |tab| %>
+    <li><%= link_to tab.name, tab.url_for_object(@object) %></li>
+  <% end %>
+</ul>
+
+<% form_for @object, :url => save_url do |f| %>
+  
+  <%= f.error_messages %>
+  
+  <% @manifest.widgets.each do |widget| %>
+    <% next if widget.hidden %>
+    <%= widget.render_in_view(self, @object, :form => f) %>
+  <% end %>
+  
+  <div id="actions">
+    <%= f.submit %>
+  </div>
+  
+<% end %>
