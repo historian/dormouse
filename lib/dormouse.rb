@@ -16,7 +16,7 @@ module Dormouse
   require 'dormouse/active_record'
   require 'dormouse/action_controller'
   
-  if defined?(Rails) and Rails.respond_to?(:application)
+  if defined?(Rails::Railtie)
     require 'dormouse/railtie'
   end
   
