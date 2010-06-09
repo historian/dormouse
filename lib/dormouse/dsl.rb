@@ -62,6 +62,10 @@ class Dormouse::DSL
     set(property, :secondary => true)
   end
   
+  def children(property)
+    set(property, :children => true)
+  end
+  
   # hide one or more properties in the form.
   # @param [#to_sym] properties property names
   # @return [Dormouse::DSL] self
@@ -109,6 +113,11 @@ class Dormouse::DSL
     self
   end
   
+  def add(name, options={})
+    @manifest.push(name)
+    set(name, options)
+  end
+  
   # Set options for a property.
   # @param [#to_sym] name of the property
   # @option options [Symbol] :after (nil) position this property after another property.
@@ -148,6 +157,10 @@ class Dormouse::DSL
     
     if options.key?(:secondary) and options.delete(:secondary)
       @manifest.secondary_name_column = property
+    end
+    
+    if options.key?(:children) and options.delete(:children)
+      @manifest.children_association = property
     end
     
     @manifest[property].populate(options)

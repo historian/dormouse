@@ -20,6 +20,10 @@ class Dormouse::Manifest
     @collection_type     = :list
     @primary_name_column = @properties[@order.first].name
     
+    self[:created_at].populate(:hidden => true) if self[:created_at]
+    self[:updated_at].populate(:hidden => true) if self[:updated_at]
+    self[:position].populate(:hidden => true)   if self[:position]
+    
     @widgets.reset!
     @tabs.reset!
   end
@@ -56,6 +60,8 @@ class Dormouse::Manifest
   # @return [Symbol]
   attr_accessor :secondary_name_column
   
+  attr_accessor :children_association
+  
   # The style used to render this resource. defaults to <tt>'dormouse'</tt>.
   # @return [Symbol]
   attr_accessor :style
@@ -75,6 +81,7 @@ class Dormouse::Manifest
   def [](name)
     name = primary_name_column   if name == :_primary
     name = secondary_name_column if name == :_secondary
+    name = children_association  if name == :_children
     @properties[name.to_sym]
   end
   
@@ -105,6 +112,13 @@ class Dormouse::Manifest
     "#<#{self}: #{@resource}>"
   end
   
+  def push(name)
+    property = Dormouse::Property.new(self, name)
+    @properties[property.name] = property
+    @order << property.name
+    property
+  end
+  
 private
   
   def generate_default_properties
@@ -132,6 +146,24 @@ private
         property = Dormouse::Property.new(self, column, translations_model.table_name)
         @properties[property.name] = property
         @order << property.name
+      end
+    end
+    
+    if resource.respond_to?(:singular_attachments)
+      resource.singular_attachments.each do |attachment|
+        asset = "#{attachment.to_s.singularize}_asset".to_sym
+        allocation = "#{attachment.to_s.singularize}_allocation".to_sym
+        @properties[asset].populate(:hidden => true)
+        @properties[allocation].populate(:label => attachment.to_s.humanize)
+      end
+    end
+    
+    if resource.respond_to?(:plural_attachments)
+      resource.plural_attachments.each do |attachment|
+        assets = "#{attachment.to_s.singularize}_assets".to_sym
+        allocations = "#{attachment.to_s.singularize}_allocations".to_sym
+        @properties[assets].populate(:hidden => true)
+        @properties[allocations].populate(:label => attachment.to_s.humanize)
       end
     end
     

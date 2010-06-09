@@ -2,7 +2,13 @@
 class Dormouse::Property
   
   def initialize(manifest, target, table_name=nil)
-    @target     = target
+    if Symbol === target or String === target
+      @name   = target.to_sym
+      @type   = :string
+      @hidden = true
+    else
+      @target = target
+    end
     @options    = {}
     @manifest   = manifest
     @table_name = table_name
@@ -18,7 +24,6 @@ class Dormouse::Property
     @hidden  = options.delete(:hidden) if options.key?(:hidden)
     @label   = options.delete(:label)  if options.key?(:label)
     @type    = options.delete(:type)   if options.key?(:type)
-    @label   = self.name.to_s.humanize if @label.nil?
     @options = @options.merge(options)
   end
   
@@ -42,6 +47,13 @@ class Dormouse::Property
         @target.type
       end
     end
+  end
+  
+  def label
+    if @label.nil?
+      @label = self.names.human(:short => true, :plural => plural?)
+    end
+    @label
   end
   
   def name(options={})

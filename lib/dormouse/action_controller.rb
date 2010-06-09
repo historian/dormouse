@@ -22,7 +22,6 @@ module Dormouse::ActionController
     map.resources name.to_sym, options do |subresource|
       manifest.each do |property|
         
-        next unless property.resource
         build_sub_routes(manifest, property, subresource)
         
       end
@@ -30,7 +29,7 @@ module Dormouse::ActionController
   end
   
   def self.build_sub_routes(parent, property, map)
-    return unless property.type == :has_many and !property.options[:inline]
+    return unless property.plural? and !property.options[:inline]
     
     manifest   = property.resource.manifest
     controller = manifest.controller_class
@@ -321,6 +320,7 @@ private
   def lookup_parent
     self.class.potential_parents.each do |association, manifest|
       param = manifest.names.param_id
+      Rails.logger.debug [manifest.resource, param, params[param]].inspect
       if params[param]
         @parent_manifest = manifest
         @parent = manifest.resource.find(params[param])
