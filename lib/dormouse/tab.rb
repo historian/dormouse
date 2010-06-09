@@ -8,7 +8,7 @@ class Dormouse::Tab
   attr_reader :manifest, :property
   
   def name
-    @name ||= @property.resource.manifest.names.human(:plural => true, :short => true)
+    @name ||= @property.label
   end
   
   def url_for_object(object)

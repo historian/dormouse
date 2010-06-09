@@ -106,9 +106,9 @@ class Dormouse::Names
           end
         else
           if options[:plural]
-            @property.name.to_s
-          else
             @property.name.to_s.pluralize
+          else
+            @property.name.to_s
           end
         end
       else
