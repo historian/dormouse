@@ -2,11 +2,12 @@
 desc "build the dormouse"
 task :build do
   sh "gem build dormouse.gemspec"
+  system('mkdir -p pkg ; mv ./*.gem pkg/')
 end
 
 desc "install the dormouse"
 task :install => [:load_version, :build] do
-  sh "gem install dormouse-#{Dormouse::VERSION}.gem"
+  sh "gem install pkg/dormouse-#{Dormouse::VERSION}.gem"
 end
 
 desc "release the dormouse"
@@ -15,14 +16,14 @@ task :release => [:load_version, :build] do
     puts "Your git stage is not clean!"
     exit(1)
   end
-  
-  if %x[ git tag 2>&1 ].include?(Dormouse::VERSION)
+
+  if %x[ git tag 2>&1 ] =~ /^#{Regexp.escape(Dormouse::VERSION)}$/m
     puts "Please bump your version first!"
     exit(1)
   end
-  
+
   require File.expand_path('../lib/dormouse/version', __FILE__)
-  sh "gem push dormouse-#{Dormouse::VERSION}.gem"
+  sh "gem push pkg/dormouse-#{Dormouse::VERSION}.gem"
   sh "git tag -a -m \"#{Dormouse::VERSION}\" #{Dormouse::VERSION}"
   sh "git push origin master"
   sh "git push origin master --tags"

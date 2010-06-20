@@ -18,6 +18,7 @@ class Dormouse::Manifest
     @style               = Dormouse.options[:style]
     @collection_type     = :list
     @primary_name_column = @properties.keys.first
+    @namespace         ||= Dormouse.options[:default_namespace]
 
     self[:created_at].populate(:hidden => true) if self[:created_at]
     self[:updated_at].populate(:hidden => true) if self[:updated_at]
@@ -61,13 +62,17 @@ class Dormouse::Manifest
   # @return [Symbol]
   attr_accessor :style
 
+  # The namespace used for this resource.
+  # @return [String]
+  attr_accessor :namespace
+
   # The collection type of this resource. Possible options are <tt>list</tt>, <tt>:tree</tt> and <tt>:grid</tt>
   # @return [Symbol]
   attr_accessor :collection_type
 
   # Mounts this resource. <tt>map</tt> must be a route mapper. this method draws all relevant routes for this resource.
   def mount(map)
-    Dormouse::ActionController.build(self, map)
+    Dormouse::ActionController::Builder.build(self, map)
   end
 
   # get a property by name. <tt>:_primary</tt> and <tt>:_secondary</tt> are shortcuts to the <tt>primary_name_column</tt> and <tt>secondary_name_column</tt> properties.

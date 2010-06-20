@@ -52,7 +52,7 @@ module Dormouse::ActiveRecord::ClassMethods
 
   def const_missing(name)
     if name == 'ResourcesController'
-      Dormouse::ActionController.build_controller(manifest)
+      Dormouse::ActionController::Builder.build_controller(manifest)
     else
       super
     end

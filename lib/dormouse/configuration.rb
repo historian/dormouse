@@ -6,7 +6,8 @@ module Dormouse
     :controller_superclass => 'ApplicationController',
     :extentions            => %w( Dormouse::Extentions::Globalize Dormouse::Extentions::Paperclip Dormouse::Extentions::LalalaAssets ),
     :cms_name              => 'Administration',
-    :resources             => []
+    :resources             => [],
+    :default_namespace     => false
   }.freeze
 
   def self.options

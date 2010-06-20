@@ -32,6 +32,14 @@ class Dormouse::DSL
   end
 
 
+  # set the namespace for this resource.
+  # @return [Dormouse::DSL] self
+  def namespace(string)
+    @manifest.namespace = (string || false)
+    self
+  end
+
+
   # set the collection view type for this model. (The default type is :list)
   # @return [Dormouse::DSL] self
   def collection_type(type)

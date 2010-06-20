@@ -1,50 +1,50 @@
 # @author Simon Menke
 module Dormouse::ActionController
 
-  def self.build(manifest, map)
-    build_routes(manifest, map)
-  end
+  module Builder
 
-  def self.build_controller(manifest)
-    controller = Class.new(manifest.controller_superclass)
-    manifest.resource.const_set('ResourcesController', controller)
-    controller.instance_variable_set '@manifest', manifest
-    controller.send :include, Actions
-    controller
-  end
+    def self.build(manifest, map)
+      build_routes(manifest, map)
+    end
 
-  def self.build_routes(manifest, map)
-    name       = manifest.names.identifier(:plural => true, :short => true)
-    namespace  = manifest.names.controller_namespace
-    controller = manifest.names.controller_name
+    def self.build_controller(manifest)
+      controller = Class.new(manifest.controller_superclass)
+      manifest.resource.const_set('ResourcesController', controller)
+      controller.instance_variable_set '@manifest', manifest
+      controller.send :include, Dormouse::ActionController
+      controller
+    end
 
-    options = { :controller => controller, :collection => { :update => :put, :destroy => :delete }, :path_prefix => "/#{namespace}" }
-    map.resources name.to_sym, options do |subresource|
-      manifest.each do |property|
+    def self.build_routes(manifest, map)
+      name       = manifest.names.identifier(:plural => true, :short => true)
+      namespace  = manifest.namespace || manifest.names.controller_namespace
+      controller = manifest.names.controller_name
 
-        build_sub_routes(manifest, property, subresource)
+      options = { :controller => controller, :collection => { :update_many => :put, :destroy_many => :delete, :create_many => :post }, :path_prefix => "/#{namespace}" }
+      map.resources name.to_sym, options do |subresource|
+        manifest.each do |property|
 
+          build_sub_routes(manifest, property, subresource)
+
+        end
       end
     end
+
+    def self.build_sub_routes(parent, property, map)
+      return unless property.plural? and !property.options[:inline]
+
+      manifest   = property.resource.manifest
+      controller = manifest.controller_class
+      controller.potential_parents[property.name.to_sym] = parent
+
+      name       = property.names.identifier(:plural => true, :short => true)
+      controller = property.names.controller_name
+
+      options = { :controller => controller, :only => [:index, :new, :create], :collection => { :create_many => :post } }
+      map.resources name.to_sym, options
+    end
+
   end
-
-  def self.build_sub_routes(parent, property, map)
-    return unless property.plural? and !property.options[:inline]
-
-    manifest   = property.resource.manifest
-    controller = manifest.controller_class
-    controller.potential_parents[property.name.to_sym] = parent
-
-    name       = property.names.identifier(:plural => true, :short => true)
-    controller = property.names.controller_name
-
-    options = { :controller => controller, :only => [:index, :new, :create] }
-    map.resources name.to_sym, options
-  end
-
-end
-
-module Dormouse::ActionController::Actions
 
   extend ActiveSupport::Concern
 
@@ -111,6 +111,31 @@ module Dormouse::ActionController::Actions
     end
   end
 
+  def create_many
+    attrs = params[@manifest.names.params]
+
+    @objects = attrs.collect do |attrs|
+      if @parent
+        @parent.__send__(@parent_association).build(attrs)
+      else
+        @manifest.resource.new(attrs)
+      end
+    end
+
+    model.resource.transaction do
+      @objects.collect { |object| object.save! }
+    end
+
+    respond_with(@objects, :location => manifest.urls.index(@parent))
+
+  rescue ActiveRecord::RecordInvalid => e
+    @object = e.record
+
+    respond_with(@objects) do |format|
+      format.html { redirect_to manifest.urls.index(@parent) }
+    end
+  end
+
   def update
     attrs = params[@manifest.names.param]
 
@@ -126,11 +151,42 @@ module Dormouse::ActionController::Actions
     end
   end
 
+  def update_many
+    attrs = params[@manifest.names.params]
+
+    @objects = manifest.resource.find(attrs.keys)
+
+    model.resource.transaction do
+      @objects.each do |object|
+        object.update_attributes! attrs[object.id.to_s]
+      end
+    end
+
+    respond_with(@objects, :location => :back)
+
+  rescue ActiveRecord::RecordInvalid => e
+    @object = e.record
+
+    respond_with(@objects) do |format|
+      format.html { redirect_to :back }
+    end
+  end
+
   def destroy
     @object = @manifest.resource.find(params[:id])
     @object.destroy
 
     respond_with(@object)
+  end
+
+  def destroy_many
+    @objects = @manifest.resource.find(params[@manifest.names.params])
+
+    model.resource.transaction do
+      @objects.each { |object| object.destroy }
+    end
+
+    respond_with(@objects, :location => :back)
   end
 
 private
@@ -210,7 +266,7 @@ private
 
 end
 
-module Dormouse::ActionController::Actions::ClassMethods
+module Dormouse::ActionController::ClassMethods
 
   attr_accessor :manifest
   attr_reader :potential_parents

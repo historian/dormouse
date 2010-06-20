@@ -75,9 +75,13 @@ protected
         parent_urls = @property.manifest.urls
         parent_urls.namespace
       else
-        namespace = @resource.to_s.split('::')
-        namespace.pop
-        namespace = namespace.join('/').underscore.gsub('_', '/')
+        if @resource.manifest.namespace
+          @resource.manifest.namespace
+        else
+          namespace = @resource.to_s.split('::')
+          namespace.pop
+          namespace = namespace.join('/').underscore.gsub('_', '/')
+        end
       end
     end
   end
