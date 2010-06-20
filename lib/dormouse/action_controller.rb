@@ -6,10 +6,10 @@ module Dormouse::ActionController
   end
 
   def self.build_controller(manifest)
-    controller = eval("class ::#{manifest.resource}::ResourcesController < ::#{manifest.controller_superclass} ; self ; end ")
-    controller.extend Meta
+    controller = Class.new(manifest.controller_superclass)
+    manifest.resource.const_set('ResourcesController', controller)
+    controller.instance_variable_set '@manifest', manifest
     controller.send :include, Actions
-    controller.manifest = manifest
     controller
   end
 
@@ -46,102 +46,53 @@ end
 
 module Dormouse::ActionController::Actions
 
-  def self.included(base)
-    base.class_eval do
-      helper_method :manifest, :save_url
-      before_filter :assign_manifest
-      before_filter :lookup_parent, :only => [:index, :new, :create]
-    end
+  extend ActiveSupport::Concern
+
+  included do
+    helper_method :manifest, :save_url
+    before_filter :assign_manifest
+    before_filter :lookup_parent, :only => [:index, :new, :create]
+    respond_to    :html, :xml, :json
+    layout "#{manifest.style}/layouts/application"
   end
 
   def index
-    respond_to do |format|
-      format.html { html_index }
-      format.json { json_index }
+    @collection_count, @collection = *lookup_collection
+
+    respond_with(@collection) do |format|
+      format.html { render :template => "#{@manifest.style}/views/#{@manifest.collection_type}" }
     end
   end
 
   def show
-    respond_to do |format|
-      format.html { html_show }
-      format.json { json_show }
+    @object = manifest.resource.find(params[:id])
+
+    respond_with(@object) do |format|
+      format.html { render :template => "#{@manifest.style}/views/form" }
     end
   end
 
   def new
-    respond_to do |format|
-      format.html { html_new }
-    end
-  end
-
-  def edit
-    respond_to do |format|
-      format.html { html_edit }
-    end
-  end
-
-  def create
-    respond_to do |format|
-      format.html { html_create }
-      format.json { json_create }
-    end
-  end
-
-  def update
-    respond_to do |format|
-      format.html { html_update }
-      format.json { json_update }
-    end
-  end
-
-  def destroy
-    respond_to do |format|
-      format.html { html_destroy }
-      format.json { json_destroy }
-    end
-  end
-
-protected
-
-  def html_index
-    @collection_count, @collection = *lookup_collection
-
-    render_html(@manifest.collection_type)
-  end
-
-  def json_index
-    @collection_count, @collection = *lookup_collection
-    render :json => { :collection => @collection, :count => @collection_count }
-  end
-
-  def html_show
-    @object = manifest.resource.find(params[:id])
-
-    render_html(:form)
-  end
-
-  def json_show
-    @object = manifest.resource.find(params[:id])
-    render :json => @object
-  end
-
-  def html_new
     if @parent
       @object = @parent.__send__(@parent_association).build
     else
       @object = @manifest.resource.new
     end
 
-    render_html(:form)
+    respond_with(@object) do |format|
+      format.html { render :template => "#{@manifest.style}/views/form" }
+    end
   end
 
-  def html_edit
+  def edit
     @object = manifest.resource.find(params[:id])
 
-    render_html(:form)
+    respond_with(@object) do |format|
+      format.html { render :template => "#{@manifest.style}/views/form" }
+    end
   end
 
-  def html_create
+  def create
     attrs = params[@manifest.names.param]
 
     if @parent
@@ -150,132 +101,47 @@ protected
       @object = @manifest.resource.create!(attrs)
     end
 
-    redirect_to @manifest.urls.index(@parent)
+    respond_with(@object)
 
   rescue ActiveRecord::RecordInvalid => e
     @object = e.record
 
-    render_html(:form)
-  end
-
-  def json_create
-    if collection = params[@manifest.names.params]
-      objects = []
-
-      @manifest.resource.transaction do
-        collection.each do |attrs|
-
-          if @parent
-            objects << @parent.__send__(@parent_association).create!(attrs)
-          else
-            objects << @manifest.resource.create!(attrs)
-          end
-
-        end
-      end
-
-      render :json => objects
-
-    elsif attrs = params[@manifest.names.param]
-
-      if @parent
-        object = @parent.__send__(@parent_association).create!(attrs)
-      else
-        object = @manifest.resource.create!(attrs)
-      end
-
-      render :json => object
-
+    respond_with(@object) do |format|
+      format.html { render :template => "#{@manifest.style}/views/form" }
     end
-  rescue ActiveRecord::RecordInvalid => e
-    render :json => e.record.errors
   end
 
-  def html_update
+  def update
     attrs = params[@manifest.names.param]
 
     @object = @manifest.resource.find(params[:id]).update_attributes!(attrs)
 
-    redirect_to @manifest.urls.index
+    respond_with(@object)
 
   rescue ActiveRecord::RecordInvalid => e
     @object = e.record
 
-    render_html(:form)
-  end
-
-  def json_update
-    if collection = params[@manifest.names.params]
-      objects = @manifest.resource.find(collection.keys)
-
-      @manifest.resource.transaction do
-        objects.each do |object|
-
-          object.update_attributes! collection[object.id.to_s]
-
-        end
-      end
-
-      render :json => objects
-
-    elsif attrs = params[@manifest.names.param]
-      object = @manifest.resource.find(params[:id])
-      object.update_attributes! attrs
-      render :json => object
-
+    respond_with(@object) do |format|
+      format.html { render :template => "#{@manifest.style}/views/form" }
     end
-  rescue ActiveRecord::RecordInvalid => e
-    render :json => e.record.errors
   end
 
-  def html_destroy
-    @manifest.resource.find(params[:id]).destroy
+  def destroy
+    @object = @manifest.resource.find(params[:id])
+    @object.destroy
 
-    redirect_to @manifest.urls.index
-
-  rescue ActiveRecord::RecordNotFound => e
-    redirect_to @manifest.urls.index
-  end
-
-  def json_destroy
-    if collection = params[@manifest.names.param_ids]
-      objects = @manifest.resource.find(collection)
-
-      @manifest.resource.transaction do
-        objects.each do |object|
-
-          object.destroy
-
-        end
-      end
-
-      render :json => objects
-
-    elsif id = params[:id]
-      object = @manifest.resource.find(id)
-      object.destroy
-      render :json => object
-
-    end
-  rescue ActiveRecord::RecordInvalid => e
-    render :json => e.record.errors
+    respond_with(@object)
   end
 
 private
 
-  def render_html(view)
-    if request.xhr?
-      render :template => "#{@manifest.style}/views/#{view}",
-             :layout   => false
-    else
-      render :template => "#{@manifest.style}/views/#{view}",
-             :layout   => "#{@manifest.style}/layouts/application"
-    end
-  end
-
   def save_url
     if @object.new_record?
-      manifest.urls.create(@parent)
+      if @parent
+        @parent_manifest[@parent_association].urls.create(@parent)
+      else
+        manifest.urls.create(@parent)
+      end
     else
       manifest.urls.update(@object)
     end
@@ -292,7 +158,6 @@ private
   def lookup_parent
     self.class.potential_parents.each do |association, manifest|
       param = manifest.names.param_id
-      Rails.logger.debug [manifest.resource, param, params[param]].inspect
       if params[param]
         @parent_manifest = manifest
         @parent = manifest.resource.find(params[param])
@@ -306,7 +171,11 @@ private
     collection = (@parent ? @parent.__send__(@parent_association) :
                             manifest.resource)
 
-    order = "-#{manifest[:updated_at].name(:table => true)}"
+    if manifest[:position]
+      order = "#{manifest[:position].name(:table => true)} #{manifest[:created_at].name(:table => true)}"
+    else
+      order = "#{manifest[:created_at].name(:table => true)}"
+    end
     count = 0
 
     if query = params[:q] and !query.blank?
@@ -341,7 +210,7 @@ private
 
 end
 
-module Dormouse::ActionController::Meta
+module Dormouse::ActionController::Actions::ClassMethods
 
   attr_accessor :manifest
   attr_reader :potential_parents

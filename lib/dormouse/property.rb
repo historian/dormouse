@@ -20,11 +20,13 @@ class Dormouse::Property
   attr_reader :name, :type, :options, :order_options, :resource, :names, :urls, :manifest, :table
   attr_accessor :hidden
   attr_accessor :label
+  attr_accessor :description
 
   def populate(options={})
-    @hidden  = options.delete(:hidden) if options.key?(:hidden)
-    @label   = options.delete(:label)  if options.key?(:label)
-    @type    = options.delete(:type)   if options.key?(:type)
+    @description = options.delete(:description) if options.key?(:description)
+    @hidden      = options.delete(:hidden)      if options.key?(:hidden)
+    @label       = options.delete(:label)       if options.key?(:label)
+    @type        = options.delete(:type)        if options.key?(:type)
 
     @order_options = options.slice(:after, :before, :top, :bottom)
     options = options.except(:after, :before, :top, :bottom)

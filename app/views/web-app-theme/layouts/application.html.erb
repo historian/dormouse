@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Web App Theme</title>
+  <title><%= Dormouse.options[:cms_name] %></title>
   <style type="text/css" media="screen">
 <%= raw File.read(File.expand_path('../../assets/base.css', __FILE__)) %></style>
   <style type="text/css" media="screen">
@@ -11,21 +11,21 @@
 <body>
   <div id="container">
     <div id="header">
-      <h1><a href="index.html">Web App Theme</a></h1>
+      <h1><a href="index.html"><%= Dormouse.options[:cms_name] %></a></h1>
       <div id="user-navigation">
         <ul class="wat-cf">
-          
+
         </ul>
       </div>
       <div id="main-navigation">
         <ul class="wat-cf">
-          
-          <% Dormouse.menu.each_with_index do |item, idx| %>
+
+          <% Dormouse.menu.each_with_index do |(key, item), idx| %>
             <%= content_tag :li, :class => [('first' if idx == 0), ('active' if request.path.starts_with?(item.url))].compact.join(' ') do %>
               <%= link_to item.name, item.url %>
             <% end %>
           <% end %>
-          
+
         </ul>
       </div>
     </div>
@@ -52,7 +52,7 @@
                 <div class="group">
                   <label class="label">Text field</label>
                   <input type="text" class="text_field" />
-                  <span class="description">Ex: a simple text</span>
+                  <span class="description"><%#= property.description %></span>
                 </div>
                 <div class="group">
                   <div class="fieldWithErrors">
@@ -60,12 +60,12 @@
                     <span class="error">can't be blank</span>
                   </div>
                   <input type="text" class="text_field" />
-                  <span class="description">Ex: a simple text</span>
+                  <span class="description"><%#= property.description %></span>
                 </div>
                 <div class="group">
                   <label class="label">Text area</label>
                   <textarea class="text_area" rows="10" cols="80"></textarea>
-                  <span class="description">Write here a long text</span>
+                  <span class="description"><%#= property.description %></span>
                 </div>
                 <div class="group navform wat-cf">
                   <button class="button" type="submit">
@@ -226,25 +226,16 @@
       </div>
 
       <div id="sidebar">
+
+        <%= yield :actions %>
+
         <div class="block">
           <h3>Simple Block</h3>
           <div class="content">
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
           </div>
         </div>
-        
-        <%= yield :actions %>
-        
-        <div class="block notice">
-          <h4>Notice Title</h4>
-          <p>Morbi posuere urna vitae nunc. Curabitur ultrices, lorem ac aliquam blandit, lectus eros hendrerit eros, at eleifend libero ipsum hendrerit urna. Suspendisse viverra. Morbi ut magna. Praesent id ipsum. Sed feugiat ipsum ut felis. Fusce vitae nibh sed risus commodo pulvinar. Duis ut dolor. Cras ac erat pulvinar tortor porta sodales. Aenean tempor venenatis dolor.</p>
-        </div>
-        <div class="block">
-          <div class="sidebar-block">
-            <h4>Sidebar Inner block Title</h4>
-            <p>Morbi posuere urna vitae nunc. Curabitur ultrices, lorem ac <a href="#">aliquam blandit</a>, lectus eros hendrerit eros, at eleifend libero ipsum hendrerit urna. Suspendisse viverra. Morbi ut magna. Praesent id ipsum. Sed feugiat ipsum ut felis. Fusce vitae nibh sed risus commodo pulvinar. Duis ut dolor. Cras ac erat pulvinar tortor porta sodales. Aenean tempor venenatis dolor.</p>
-          </div>
-        </div>
+
       </div>
     </div>
 

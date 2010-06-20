@@ -16,7 +16,7 @@ require 'dormouse'
 
 ActiveRecord::Base.establish_connection({
   :adapter => 'sqlite3',
-  :database => 'test.db'
+  :database => ':memory:'
 })
 
 ActiveRecord::Schema.define do

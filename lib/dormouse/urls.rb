@@ -1,13 +1,13 @@
 # @author Simon Menke
 class Dormouse::Urls
-  
+
   def initialize(manifest_or_property)
     if Dormouse::Property === manifest_or_property
       @property = manifest_or_property
     end
     @resource = manifest_or_property.resource
   end
-  
+
   # Build a url to the `index` action for this resource.
   # If `parent` is given the url will be relative to the parent.
   # @param [ActiveRecord::Base] parent The parent resource.
@@ -16,7 +16,7 @@ class Dormouse::Urls
     @index ||= [base_url, local_part].join('/')
     expand(@index, nil, parent)
   end
-  
+
   # Build a url to the `new` action for this resource.
   # If `parent` is given the url will be relative to the parent.
   # @param [ActiveRecord::Base] parent The parent resource.
@@ -25,7 +25,7 @@ class Dormouse::Urls
     @new ||= [base_url, local_part, 'new'].join('/')
     expand(@new, nil, parent)
   end
-  
+
   # Build a url to the `create` action for this resource.
   # If `parent` is given the url will be relative to the parent.
   # @param [ActiveRecord::Base] parent The parent resource.
@@ -34,7 +34,7 @@ class Dormouse::Urls
     @create ||= [base_url, local_part].join('/')
     expand(@create, nil, parent)
   end
-  
+
   # Build a url to the `show` action for the resource `object`.
   # @param [ActiveRecord::Base] object The resource.
   # @return [String] a url
@@ -42,7 +42,7 @@ class Dormouse::Urls
     @show ||= [base_url, local_part, ':id'].join('/')
     expand(@show, object, nil)
   end
-  
+
   # Build a url to the `edit` action for the resource `object`.
   # @param [ActiveRecord::Base] object The resource.
   # @return [String] a url
@@ -50,7 +50,7 @@ class Dormouse::Urls
     @edit ||= [base_url, local_part, ':id', 'edit'].join('/')
     expand(@edit, object, nil)
   end
-  
+
   # Build a url to the `update` action for the resource `object`.
   # @param [ActiveRecord::Base] object The resource.
   # @return [String] a url
@@ -58,7 +58,7 @@ class Dormouse::Urls
     @update ||= [base_url, local_part, ':id'].join('/')
     expand(@update, object, nil)
   end
-  
+
   # Build a url to the `destroy` action for the resource `object`.
   # @param [ActiveRecord::Base] object The resource.
   # @return [String] a url
@@ -66,9 +66,9 @@ class Dormouse::Urls
     @destroy ||= [base_url, local_part, ':id'].join('/')
     expand(@destroy, object, nil)
   end
-  
+
 protected
-  
+
   def namespace
     @namespace ||= begin
       if @property
@@ -81,18 +81,26 @@ protected
       end
     end
   end
-  
+
   def base_url
     @base_url ||= begin
       if @property
         parent_urls = @property.manifest.urls
-        ['', namespace, parent_urls.local_part, ':parent_id'].join('/')
+        if namespace.blank?
+          ['', parent_urls.local_part, ':parent_id'].join('/')
+        else
+          ['', namespace, parent_urls.local_part, ':parent_id'].join('/')
+        end
       else
-        ['', namespace].join('/')
+        if namespace.blank?
+          ''
+        else
+          ['', namespace].join('/')
+        end
       end
     end
   end
-  
+
   def local_part
     @local_part ||= begin
       if @property
@@ -102,12 +110,12 @@ protected
       end
     end
   end
-  
+
   def expand(pattern, object, parent)
     pattern = pattern.dup
     pattern.sub!(':id',        object.id.to_s) if object
     pattern.sub!(':parent_id', parent.id.to_s) if parent
     pattern
   end
-  
+
 end

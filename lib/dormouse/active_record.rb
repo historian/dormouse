@@ -1,83 +1,45 @@
 # @author Simon Menke
 module Dormouse::ActiveRecord
-  
-  def self.included(base)
-    base.extend Meta
-    if Rails.respond_to?(:application)
-      base.setup_dormouse_rails_30
-    else
-      base.setup_dormouse_rails_23
-    end
-  end
-  
+
+  extend ActiveSupport::Concern
+
   def manifest
     self.class.manifest
   end
-  
+
 end
 
-module Dormouse::ActiveRecord::Meta
-  
-  def setup_dormouse_rails_23
-    named_scope :dormouse_search, lambda { |manifest, query|
-      if query.size > 2
-        query = "%#{query}%"
-      else
-        query = "#{query}%"
-      end
-      { :conditions =>  ["#{manifest[:_primary].name(:table => true)} LIKE ?", query] }
-    }
-    
-    named_scope :dormouse_paginate, lambda { |manifest, page|
-      { :offset => ((page.to_i - 1) * 25), :limit => 25 }
-    }
-    
-    named_scope :dormouse_order, lambda { |manifest, order|
-      if order[0,1] == '-'
-        order = "#{order[1..-1]} DESC"
-      else
-        order = "#{order} ASC"
-      end
-      { :order => order }
-    }
-    
-    named_scope :dormouse_filter, lambda { |manifest, filter|
-      filter.call(manifest)
-    }
+module Dormouse::ActiveRecord::ClassMethods
+
+  def dormouse_search(manifest, query)
+    if query.size > 2
+      query = "%#{query}%"
+    else
+      query = "#{query}%"
+    end
+    where("#{manifest[:_primary].name(:table => true)} LIKE ?", query)
   end
-  
-  def setup_dormouse_rails_30
-    extend Rails30
+
+  def dormouse_paginate(manifest, page)
+    limit(25).offset((page.to_i - 1) * 25)
   end
-  
-  module Rails30
-    def dormouse_search(manifest, query)
-      if query.size > 2
-        query = "%#{query}%"
+
+  def dormouse_order(manifest, columns)
+    columns = columns.split(' ').collect do |column|
+      next(nil) if column.blank?
+      if column[0,1] == '-'
+        "#{column[1..-1]} DESC"
       else
-        query = "#{query}%"
+        "#{column} ASC"
       end
-      where("#{manifest[:_primary].name(:table => true)} LIKE ?", query)
-    end
-    
-    def dormouse_paginate(manifest, page)
-      limit(25).offset((page.to_i - 1) * 25)
-    end
-    
-    def dormouse_order(manifest, order)
-      if order[0,1] == '-'
-        order = "#{order[1..-1]} DESC"
-      else
-        order = "#{order} ASC"
-      end
-      order(order)
-    end
-    
-    def dormouse_filter(manifest, filter)
-      instance_eval(manifest, &filter)
-    end
+    end.compact.join(', ')
+    order(columns)
   end
-  
+
+  def dormouse_filter(manifest, filter)
+    instance_eval(manifest, &filter)
+  end
+
   def manifest(&block)
     @manifest ||= Dormouse::Manifest.new(self)
     if block
@@ -87,7 +49,7 @@ module Dormouse::ActiveRecord::Meta
     end
     @manifest
   end
-  
+
   def const_missing(name)
     if name == 'ResourcesController'
       Dormouse::ActionController.build_controller(manifest)
@@ -95,7 +57,7 @@ module Dormouse::ActiveRecord::Meta
       super
     end
   end
-  
+
 end
 
 class ActiveRecord::Base

@@ -11,6 +11,7 @@ module Dormouse
   require 'dormouse/urls'
   require 'dormouse/dsl'
   require 'dormouse/widgets'
+  require 'dormouse/extentions'
 
   # I don't like these. There should be a more semantic solution to link data and represent this in the ui.
   require 'dormouse/menu'

@@ -92,6 +92,13 @@ class Dormouse::Manifest
     self
   end
 
+  def delete(name)
+    name = primary_name_column   if name == :_primary
+    name = secondary_name_column if name == :_secondary
+    name = children_association  if name == :_children
+    @properties.delete(name.to_sym)
+  end
+
   # the superclass of the generated controller for this resource
   def controller_superclass
     @controller_superclass ||= begin
@@ -108,8 +115,11 @@ class Dormouse::Manifest
     "#<#{self}: #{@resource}>"
   end
 
-  def push(name)
-    property = Dormouse::Property.new(self, name)
+  def push(property_or_name)
+    property = property_or_name
+    if String === property_or_name
+      property = Dormouse::Property.new(self, property_or_name)
+    end
     @properties[property.name] = property
     property
   end
@@ -122,41 +132,14 @@ private
       @properties[property.name] = property
     end
 
-    translations_model = nil
     resource.reflect_on_all_associations.each do |association|
-      if association.name.to_s == 'globalize_translations'
-        translations_model = association.klass
-        next
-      end
-
       property = Dormouse::Property.new(self, association)
       @properties[property.name] = property
     end
 
-    if translations_model
-      translations_model.content_columns.each do |column|
-        next if %w( created_at updated_at locale ).include? column.name.to_s
-        property = Dormouse::Property.new(self, column, translations_model.table_name)
-        @properties[property.name] = property
-      end
-    end
-
-    if resource.respond_to?(:singular_attachments)
-      resource.singular_attachments.each do |attachment|
-        asset = "#{attachment.to_s.singularize}_asset".to_sym
-        allocation = "#{attachment.to_s.singularize}_allocation".to_sym
-        @properties[asset].populate(:hidden => true)
-        @properties[allocation].populate(:label => attachment.to_s.humanize)
-      end
-    end
-
-    if resource.respond_to?(:plural_attachments)
-      resource.plural_attachments.each do |attachment|
-        assets = "#{attachment.to_s.singularize}_assets".to_sym
-        allocations = "#{attachment.to_s.singularize}_allocations".to_sym
-        @properties[assets].populate(:hidden => true)
-        @properties[allocations].populate(:label => attachment.to_s.humanize)
-      end
+    (Dormouse.options[:extentions] || []).each do |extention|
+      extention = (Class === extention ? extention : extention.constantize)
+      extention.call(self)
     end
 
   rescue ActiveRecord::StatementInvalid => e

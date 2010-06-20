@@ -1,9 +1,7 @@
 <%
 
 input_options = property.options || {}
-input_options[:class] = [input_options[:class], 'text_area'].compact.join(' ')
-input_options[:rows] ||= 10
-input_options[:cols] ||= 80
+input_options[:class] = [input_options[:class], 'file_field'].compact.join(' ')
 
 %>
 <%= div_for(object, property.name, :class => [property.type, 'group'].join(' ')) do %>
@@ -15,7 +13,7 @@ input_options[:cols] ||= 80
   <% else %>
     <%= form.label(property.name, property.label, :class => 'label') if property.label %>
   <% end %>
-  <%= form.text_area(property.name, input_options) %>
+  <%= form.file_field(property.name, input_options) %>
   <% if property.description %>
     <span class="description"><%= property.description %></span>
   <% end %>

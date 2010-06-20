@@ -2,24 +2,20 @@
 <div class="block">
   <h3>Actions</h3>
   <ul class="navigation">
-    <li><%= link_to 'New item', manifest.urls.new(@parent) %></li>
+    <% if @parent_manifest %>
+      <li><%= link_to "New #{manifest.names.human(:short => true)}", @parent_manifest[@parent_association].urls.new(@parent) %></li>
+    <% else %>
+      <li><%= link_to "New #{manifest.names.human(:short => true)}", manifest.urls.new(@parent) %></li>
+    <% end %>
   </ul>
 </div>
 <% end %>
 
 <div class="block" id="block-tables">
   <div class="secondary-navigation">
-    <ul class="wat-cf">
-      <li class="first"><a href="#block-text">Text</a></li>
-      <li class="active"><a href="#block-tables">Tables</a></li>
-      <li><a href="#block-forms">Forms</a></li>
-      <li><a href="#block-messages">Messages</a></li>
-      <li><a href="#block-forms-2">2 Columns Forms</a></li>
-      <li><a href="#block-lists">Lists</a></li>
-    </ul>
   </div>
   <div class="content">
-    <h2 class="title">Tables</h2>
+    <h2 class="title"><%= manifest.names.human(:plural => true) %></h2>
     <div class="inner">
       <form action="#" class="form">
         <table class="table">
@@ -51,9 +47,39 @@
               <img src="images/icons/cross.png" alt="Delete" /> Delete
             </button>
           </div>
+
           <div class="pagination">
-            <span class="disabled prev_page">« Previous</span><span class="current">1</span><a rel="next" href="#">2</a><a href="#">3</a><a href="#">4</a><a href="#">5</a><a href="#">6</a><a href="#">7</a><a href="#">8</a><a href="#">9</a><a href="#">10</a><a href="#">11</a><a rel="next" class="next_page" href="#">Next »</a>
+            <%
+              page_count   = (@collection_count / 25.0).ceil
+              current_page = (params[:p] || 1).to_i
+              pages        = (1..page_count).to_a
+            %>
+
+            <% if current_page == 1 %>
+              <span class="disabled prev_page">« Previous</span>
+            <% else %>
+              <a rel="prev" class="prev_page" href="?p=<%= current_page - 1 %>">« Previous</a>
+            <% end %>
+
+            <% pages.each do |page| %>
+              <% if page == current_page %>
+                <span class="current"><%= page %></span>
+              <% elsif (page - 1) == current_page %>
+                <a rel="next" href="?p=<%= page %>"><%= page %></a>
+              <% elsif (page + 1) == current_page %>
+                <a rel="prev" href="?p=<%= page %>"><%= page %></a>
+              <% else %>
+                <a href="?p=<%= page %>"><%= page %></a>
+              <% end %>
+            <% end %>
+
+            <% if current_page == page_count %>
+              <span class="disabled next_page">Next »</span>
+            <% else %>
+              <a rel="next" class="next_page" href="?p=<%= current_page + 1 %>">Next »</a>
+            <% end %>
           </div>
+
         </div>
       </form>
     </div>

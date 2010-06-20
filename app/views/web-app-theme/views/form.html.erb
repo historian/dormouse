@@ -1,20 +1,31 @@
-<ul id="tabs">
-  <% @manifest.tabs.each do |tab| %>
-    <li><%= link_to tab.name, tab.url_for_object(@object) %></li>
+<div class="block" id="block-forms">
+  <div class="secondary-navigation">
+    <ul class="wat-cf">
+      <% @manifest.tabs.each_with_index do |tab, idx| %>
+        <li class="<%= 'first' if idx == 0 %>"><%= link_to tab.name, tab.url_for_object(@object) %></li>
   <% end %>
 </ul>
-
-<% form_for @object, :url => save_url do |f| %>
-  
-  <%= f.error_messages %>
-  
-  <% @manifest.widgets.each do |widget| %>
-    <% next if widget.hidden %>
-    <%= widget.render_in_view(self, @object, :form => f) %>
-  <% end %>
-  
-  <div id="actions">
-    <%= f.submit %>
   </div>
-  
-<% end %>
+  <div class="content">
+    <h2 class="title"><%= manifest.names.human(:short => true) %></h2>
+    <div class="inner">
+      <%= form_for @object, :url => save_url, :html => {:class => 'form', :multipart => true} do |f| %>
+
+      <% @manifest.widgets.each do |widget| %>
+        <% next if widget.hidden %>
+        <%= widget.render_in_view(self, @object, :form => f) %>
+      <% end %>
+
+      <div class="group navform wat-cf">
+        <button class="button" type="submit">
+          <img src="images/icons/tick.png" alt="Save" /> Save
+        </button>
+        <a href="#header" class="button">
+          <img src="images/icons/cross.png" alt="Cancel"/> Cancel
+        </a>
+      </div>
+
+      <% end %>
+    </div>
+  </div>
+</div>
