@@ -4,7 +4,11 @@ module Dormouse
   DEFAULT_OPTIONS = {
     :style                 => 'dormouse',
     :controller_superclass => 'ApplicationController',
-    :extentions            => %w( Dormouse::Extentions::Globalize Dormouse::Extentions::Paperclip Dormouse::Extentions::LalalaAssets ),
+    :extentions            => %w(
+      Dormouse::Extentions::Menu
+      Dormouse::Extentions::Globalize
+      Dormouse::Extentions::Paperclip
+      Dormouse::Extentions::LalalaAssets ),
     :cms_name              => 'Administration',
     :resources             => [],
     :default_namespace     => nil

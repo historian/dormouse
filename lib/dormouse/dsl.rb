@@ -55,14 +55,6 @@ class Dormouse::DSL
   end
 
 
-  # Set a menu item for this resource
-  # @return [Dormouse::DSL] self
-  def menu(name, options={})
-    Dormouse::menu.register(name, @manifest, options)
-    self
-  end
-
-
   # set the primary name for a model. The primary name is the name shown in lists, select boxes and grids as the link to the details.
   # @return [Dormouse::DSL] self
   def primary_name(property)

@@ -150,7 +150,7 @@ private
 
     (Dormouse.options[:extentions] || []).each do |extention|
       extention = (Class === extention ? extention : extention.constantize)
-      extention.call(self)
+      extention.call(self) if extention.respond_to?(:call)
     end
 
   rescue ActiveRecord::StatementInvalid => e
