@@ -69,9 +69,9 @@ class Dormouse::Names
 
   extend ActiveSupport::Memoizable
 
-  def initialize(resource, association=nil)
-    @resource    = resource.to_s
-    @association = association.to_s if association
+  def initialize(resource, attribute)
+    @resource  = resource.to_s  if resource
+    @attribute = attribute.to_s if attribute
   end
 
   # Build the class name of this resource
@@ -79,14 +79,16 @@ class Dormouse::Names
   # @option options [Boolean] :plural (false) pluralize the name
   # @return [String]
   def class_name(options={})
-    if options[:short] and options[:plural]
-      class_name(:short => true).pluralize
-    elsif options[:plural]
-      class_name.pluralize
-    elsif options[:short]
-      class_name.split('::').last
-    else
-      @resource
+    if @resource
+      if options[:short] and options[:plural]
+        class_name(:short => true).pluralize
+      elsif options[:plural]
+        class_name.pluralize
+      elsif options[:short]
+        class_name.split('::').last
+      else
+        @resource
+      end
     end
   end
   memoize :class_name
@@ -96,11 +98,11 @@ class Dormouse::Names
   # @option options [Boolean] :plural (false) pluralize the name
   # @return [String]
   def identifier(options={})
-    if @association
+    if @attribute
       if options[:plural]
-        @association.pluralize
+        @attribute.pluralize
       else
-        @association
+        @attribute
       end
     else
       class_name(options).gsub('::', '').underscore
@@ -118,48 +120,68 @@ class Dormouse::Names
   memoize :human
 
   def class_namespace
-    namespace = class_name.split('::')
-    namespace.pop
-    if namespace.empty?
-      nil
-    else
-      namespace.join('::')
+    if class_name
+      namespace = class_name.split('::')
+      namespace.pop
+      if namespace.empty?
+        nil
+      else
+        namespace.join('::')
+      end
     end
   end
   memoize :class_namespace
 
   def controller_class_name
-    "#{class_name}::ResourcesController"
+    if class_name
+      "#{class_name}::ResourcesController"
+    end
   end
   memoize :controller_class_name
 
   def controller_name
-    "#{class_name}::Resources".underscore
+    if class_name
+      "#{class_name}::Resources".underscore
+    end
   end
   memoize :controller_name
 
   def controller_namespace
-    class_namespace.underscore.gsub('_', '/')
+    if class_namespace
+      class_namespace.underscore.gsub('_', '/')
+    end
   end
   memoize :controller_namespace
 
   def param_id
-    "#{identifier(:short => true)}_id".underscore
+    if class_name
+      "#{identifier(:short => true)}_id".underscore
+    end
   end
   memoize :param_id
 
   def param_ids
-    "#{identifier(:short => true)}_ids".underscore
+    if class_name
+      "#{identifier(:short => true)}_ids".underscore
+    end
   end
   memoize :param_ids
 
   def param
-    class_name.gsub('::', '').underscore
+    if class_name
+      class_name.gsub('::', '').underscore
+    else
+      identifier(:short => true)
+    end
   end
   memoize :param
 
   def params
-    class_name(:plural => true).gsub('::', '').underscore
+    if class_name
+      class_name(:plural => true).gsub('::', '').underscore
+    else
+      identifier(:short => true, :plural => true)
+    end
   end
   memoize :params
 

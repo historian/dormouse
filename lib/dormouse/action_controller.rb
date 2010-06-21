@@ -36,7 +36,7 @@ module Dormouse::ActionController
 
       manifest   = property.resource.manifest
       controller = manifest.names.controller_class_name.constantize
-      controller.potential_parents[property.name.to_sym] = parent
+      controller.potential_parents[property.names.param.to_sym] = parent
 
       name       = property.names.identifier(:plural => true, :short => true)
       controller = property.names.controller_name

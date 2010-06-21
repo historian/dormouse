@@ -16,7 +16,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
     setup do
       @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("AdminBlog::Post"),
+        Dormouse::Names.new("AdminBlog::Post", nil),
         nil,
         nil)
     end
@@ -57,7 +57,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
     setup do
       @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("Admin::Blog::Post"),
+        Dormouse::Names.new("Admin::Blog::Post", nil),
         nil,
         nil)
     end
@@ -98,7 +98,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
     setup do
       @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("Admin::BlogPost"),
+        Dormouse::Names.new("Admin::BlogPost", nil),
         nil,
         nil)
     end
@@ -139,7 +139,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
     setup do
       @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("BlogPost"),
+        Dormouse::Names.new("BlogPost", nil),
         nil,
         nil)
     end
@@ -180,7 +180,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
     setup do
       @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("BlogPost"),
+        Dormouse::Names.new("BlogPost", nil),
         nil,
         'cms')
     end
@@ -222,7 +222,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
     setup do
       @urls = Dormouse::URLs.new(
         Dormouse::Names.new("Admin::Comment", :approved_comment),
-        Dormouse::Names.new("Admin::Post"),
+        Dormouse::Names.new("Admin::Post", nil),
         nil)
     end
 
@@ -263,7 +263,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
     setup do
       @urls = Dormouse::URLs.new(
         Dormouse::Names.new("Admin::Comment", :approved_comment),
-        Dormouse::Names.new("Admin::Post"),
+        Dormouse::Names.new("Admin::Post", nil),
         'cms')
     end
 

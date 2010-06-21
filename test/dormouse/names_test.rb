@@ -11,7 +11,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "AdminBlog::Post" do
 
     setup do
-      @names = Dormouse::Names.new("AdminBlog::Post")
+      @names = Dormouse::Names.new("AdminBlog::Post", nil)
     end
 
     builds "AdminBlog::Post",  :class_name
@@ -40,7 +40,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "Admin::Blog::Post" do
 
     setup do
-      @names = Dormouse::Names.new("Admin::Blog::Post")
+      @names = Dormouse::Names.new("Admin::Blog::Post", nil)
     end
 
     builds "Admin::Blog::Post",  :class_name
@@ -69,7 +69,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "Admin::BlogPost" do
 
     setup do
-      @names = Dormouse::Names.new("Admin::BlogPost")
+      @names = Dormouse::Names.new("Admin::BlogPost", nil)
     end
 
     builds "Admin::BlogPost",  :class_name
@@ -98,7 +98,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "BlogPost" do
 
     setup do
-      @names = Dormouse::Names.new("BlogPost")
+      @names = Dormouse::Names.new("BlogPost", nil)
     end
 
     builds "BlogPost",  :class_name
@@ -150,6 +150,64 @@ class DormouseNamesTest < ActiveSupport::TestCase
     builds "related_post_ids", :param_ids
     builds "admin_blog_post",  :param
     builds "admin_blog_posts", :params
+
+  end
+
+  context "#title" do
+
+    setup do
+      @names = Dormouse::Names.new(nil, :title)
+    end
+
+    builds nil, :class_name
+    builds nil, :class_name, :short => true
+    builds nil, :class_name, :plural => true
+
+    builds "title",  :identifier
+    builds "title",  :identifier, :short => true
+    builds "titles", :identifier, :plural => true
+
+    builds "Title",  :human
+    builds "Title",  :human, :short => true
+    builds "Titles", :human, :plural => true
+
+    builds nil, :class_namespace
+    builds nil, :controller_class_name
+    builds nil, :controller_name
+
+    builds nil,      :param_id
+    builds nil,      :param_ids
+    builds "title",  :param
+    builds "titles", :params
+
+  end
+
+  context "#short_description" do
+
+    setup do
+      @names = Dormouse::Names.new(nil, :short_description)
+    end
+
+    builds nil, :class_name
+    builds nil, :class_name, :short => true
+    builds nil, :class_name, :plural => true
+
+    builds "short_description",  :identifier
+    builds "short_description",  :identifier, :short => true
+    builds "short_descriptions", :identifier, :plural => true
+
+    builds "Short description",  :human
+    builds "Short description",  :human, :short => true
+    builds "Short descriptions", :human, :plural => true
+
+    builds nil, :class_namespace
+    builds nil, :controller_class_name
+    builds nil, :controller_name
+
+    builds nil,                  :param_id
+    builds nil,                  :param_ids
+    builds "short_description",  :param
+    builds "short_descriptions", :params
 
   end
 

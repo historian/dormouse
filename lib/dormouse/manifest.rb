@@ -41,7 +41,7 @@ class Dormouse::Manifest
   # @return [Dormouse::Names]
   attr_reader :names
   def names
-    @names ||= Dormouse::Names.new(resource.to_s)
+    @names ||= Dormouse::Names.new(resource, nil)
   end
 
   # A helper for building urls to this resource.
@@ -124,7 +124,7 @@ class Dormouse::Manifest
     if String === property_or_name
       property = Dormouse::Property.new(self, property_or_name)
     end
-    @properties[property.name] = property
+    @properties[property.names.param] = property
     property
   end
 
@@ -140,12 +140,12 @@ private
   def generate_default_properties
     resource.content_columns.each do |column|
       property = Dormouse::Property.new(self, column)
-      @properties[property.name] = property
+      @properties[property.names.param] = property
     end
 
     resource.reflect_on_all_associations.each do |association|
       property = Dormouse::Property.new(self, association)
-      @properties[property.name] = property
+      @properties[property.names.param] = property
     end
 
     (Dormouse.options[:extentions] || []).each do |extention|

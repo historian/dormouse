@@ -1,4 +1,4 @@
-<%= div_for(object, property.name, :class => property.type) do %>
-  <%= form.label(property.name, property.label) if property.label %>
-  <%= form.check_box(property.name, property.options) %>
+<%= div_for(object, property.names.param, :class => property.type) do %>
+  <%= form.label(property.names.param, property.label) if property.label %>
+  <%= form.check_box(property.names.param, property.options) %>
 <% end %>

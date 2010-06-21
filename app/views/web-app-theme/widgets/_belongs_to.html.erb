@@ -1,6 +1,6 @@
-<%= div_for(object, property.name, :class => property.type) do %>
-  <%= form.label(property.name, property.label) if property.label %>
-  <%= form.collection_select("#{property.name}_id",
+<%= div_for(object, property.names.param, :class => property.type) do %>
+  <%= form.label(property.names.param, property.label) if property.label %>
+  <%= form.collection_select(property.names.param_id,
         target.resource.all,
         :id, target.primary_name_column, property.options) %>
 <% end %>

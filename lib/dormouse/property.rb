@@ -8,9 +8,19 @@ class Dormouse::Property
       @name   = target.to_sym
       @type   = :string
       @hidden = true
+
+      @names = Dormouse::Names.new(nil, @name)
     else
       @target = target
+      if plural?
+        @names = Dormouse::Names.new(
+          @target.klass, @target.name.to_s.singularize)
+      else
+        @names = Dormouse::Names.new(
+          @target.klass, @target.name)
+      end
     end
+
     @options       = {}
     @order_options = {}
     @manifest      = manifest
@@ -48,7 +58,7 @@ class Dormouse::Property
   end
 
   def plural?
-    [:has_many, :has_and_belongs_to_many].include? @type
+    [:has_many, :has_and_belongs_to_many].include? self.type
   end
 
   def polymorphic?
@@ -74,18 +84,6 @@ class Dormouse::Property
     @label
   end
 
-  attr_reader :name
-  def name(options={})
-    @name ||= @target.name.to_sym
-    if options[:ids]
-      "#{@name.to_s.singularize}_ids".to_sym
-    elsif options[:table]
-      "#{table}.#{@name}"
-    else
-      @name
-    end
-  end
-
   attr_reader :table
   def table
     if column?
@@ -107,19 +105,10 @@ class Dormouse::Property
   end
 
   attr_reader :names
-  def names
-    if association?
-      if plural?
-        @names ||= Dormouse::Names.new(@target.klass.to_s, @target.name.to_s.singularize)
-      else
-        @names ||= Dormouse::Names.new(@target.klass.to_s, @target.name.to_s)
-      end
-    end
-  end
 
   attr_reader :urls
   def urls
-    if self.names
+    if association?
       @urls ||= Dormouse::URLs.new(self.names, @target.manifest.names, @target.manifest.namespace)
     end
   end

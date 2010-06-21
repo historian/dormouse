@@ -20,7 +20,7 @@ private
 
   def render_widget(property, view, object, options={})
     locals = options.merge(
-      :value    => object.__send__(property.name),
+      :value    => object.__send__(property.names.param),
       :object   => object,
       :property => property,
       :manifest => property.manifest,

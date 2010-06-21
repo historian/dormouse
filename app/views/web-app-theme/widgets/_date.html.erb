@@ -4,16 +4,16 @@ input_options = property.options || {}
 input_options[:class] = [input_options[:class], 'date_select'].compact.join(' ')
 
 %>
-<%= div_for(object, property.name, :class => [property.type, 'group'].join(' ')) do %>
-  <% if object.errors[property.name] %>
+<%= div_for(object, property.names.param, :class => [property.type, 'group'].join(' ')) do %>
+  <% if object.errors[property.names.param] %>
     <div class="fieldWithErrors">
-      <%= form.label(property.name, property.label, :class => 'label') if property.label %>
-      <span class="error"><%=raw [object.errors[property.name]].flatten.join('<br/>') %></span>
+      <%= form.label(property.names.param, property.label, :class => 'label') if property.label %>
+      <span class="error"><%=raw [object.errors[property.names.param]].flatten.join('<br/>') %></span>
     </div>
   <% else %>
-    <%= form.label(property.name, property.label, :class => 'label') if property.label %>
+    <%= form.label(property.names.param, property.label, :class => 'label') if property.label %>
   <% end %>
-  <%= form.date_select(property.name, property.options) %>
+  <%= form.date_select(property.names.param, property.options) %>
   <% if property.description %>
     <span class="description"><%= property.description %></span>
   <% end %>
