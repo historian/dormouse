@@ -4,13 +4,21 @@ class Dormouse::Property
   extend ActiveSupport::Memoizable
 
   def initialize(manifest, target, table_name=nil)
+    @options       = {}
+    @order_options = {}
+    @manifest      = manifest
+    @table_name    = table_name
+
     if Symbol === target or String === target
+      # normal columns
       @name   = target.to_sym
       @type   = :string
       @hidden = true
 
       @names = Dormouse::Names.new(nil, @name)
+
     else
+      # assotiations and composites
       @target = target
       if plural?
         @names = Dormouse::Names.new(
@@ -20,11 +28,6 @@ class Dormouse::Property
           @target.klass, @target.name)
       end
     end
-
-    @options       = {}
-    @order_options = {}
-    @manifest      = manifest
-    @table_name    = table_name
 
     populate
   end
