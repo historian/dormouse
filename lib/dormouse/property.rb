@@ -19,9 +19,8 @@ class Dormouse::Property
     populate
   end
 
-  attr_reader :name, :type, :options, :order_options, :resource, :names, :urls, :manifest, :table
+  attr_reader :options, :order_options, :manifest
   attr_accessor :hidden
-  attr_accessor :label
   attr_accessor :description
 
   def populate(options={})
@@ -48,6 +47,15 @@ class Dormouse::Property
     !reflection?
   end
 
+  def plural?
+    [:has_many, :has_and_belongs_to_many].include? @type
+  end
+
+  def polymorphic?
+    association? and @target.options[:polymorphic]
+  end
+
+  attr_reader :type
   def type
     @type ||= begin
       if reflection?
@@ -58,6 +66,7 @@ class Dormouse::Property
     end
   end
 
+  attr_accessor :label
   def label
     if @label.nil?
       @label = self.names.human(:short => true, :plural => plural?)
@@ -65,6 +74,7 @@ class Dormouse::Property
     @label
   end
 
+  attr_reader :name
   def name(options={})
     @name ||= @target.name.to_sym
     if options[:ids]
@@ -76,6 +86,7 @@ class Dormouse::Property
     end
   end
 
+  attr_reader :table
   def table
     if column?
       @table_name ||= @manifest.resource.table_name
@@ -84,6 +95,7 @@ class Dormouse::Property
     end
   end
 
+  attr_reader :resource
   def resource
     @resource ||= begin
       if association? and !polymorphic?
@@ -94,14 +106,7 @@ class Dormouse::Property
     end
   end
 
-  def plural?
-    [:has_many, :has_and_belongs_to_many].include? @type
-  end
-
-  def polymorphic?
-    association? and @target.options[:polymorphic]
-  end
-
+  attr_reader :names
   def names
     if association?
       if plural?
@@ -112,6 +117,7 @@ class Dormouse::Property
     end
   end
 
+  attr_reader :urls
   def urls
     if self.names
       @urls ||= Dormouse::URLs.new(self.names, @target.manifest.names, @target.manifest.namespace)

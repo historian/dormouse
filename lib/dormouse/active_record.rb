@@ -44,8 +44,7 @@ module Dormouse::ActiveRecord::ClassMethods
     @manifest ||= Dormouse::Manifest.new(self)
     if block
       Dormouse::DSL.new(@manifest).instance_eval(&block)
-      @manifest.widgets.reset!
-      @manifest.tabs.reset!
+      @manifest.reset!
     end
     @manifest
   end

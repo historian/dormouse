@@ -2,46 +2,36 @@
 class Dormouse::Widgets < Array
 
   def initialize(manifest)
-    @manifest = manifest
-  end
-
-  def reset!
-    clear
-
-    @manifest.each do |property|
-      widget_klass = Dormouse::Widgets[property.type]
-      self << widget_klass.new(@manifest, property) if widget_klass
-    end
-
-    self
-  end
-
-  class << self
-    def [](name)
-      (@widget_types ||= {})[name.to_sym]
-    end
-
-    def []=(name, klass)
-      (@widget_types ||= {})[name.to_sym] = klass
+    manifest.each do |property|
+      next if property.hidden
+      next if property.association? and !property.options[:inline]
+      self << property
     end
   end
 
-  require 'dormouse/widgets/base'
-  require 'dormouse/widgets/simple'
+  def render(view, object, options={})
+    self.inject('') do |html, property|
+      html.concat render_widget(property, view, object, options)
+      html
+    end
+  end
 
-  require 'dormouse/widgets/string'
-  require 'dormouse/widgets/text'
-  require 'dormouse/widgets/date'
-  require 'dormouse/widgets/time'
-  require 'dormouse/widgets/datetime'
-  require 'dormouse/widgets/boolean'
-  require 'dormouse/widgets/integer'
-  require 'dormouse/widgets/float'
-  require 'dormouse/widgets/decimal'
-  require 'dormouse/widgets/timestamp'
-  require 'dormouse/widgets/file'
+private
 
-  require 'dormouse/widgets/has_many'
-  require 'dormouse/widgets/belongs_to'
+  def render_widget(property, view, object, options={})
+    locals = options.merge(
+      :value    => object.__send__(property.name),
+      :object   => object,
+      :property => property,
+      :manifest => property.manifest,
+      :target   => property.resource.try(:manifest)
+    )
+
+    partial = "#{property.manifest.style}/widgets/#{property.type}"
+
+    view.instance_eval do
+      render :partial => partial, :locals => locals
+    end
+  end
 
 end

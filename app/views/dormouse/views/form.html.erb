@@ -8,10 +8,7 @@
 
   <%#= f.error_messages %>
 
-  <% @manifest.widgets.each do |widget| %>
-    <% next if widget.hidden %>
-    <%= widget.render_in_view(self, @object, :form => f) %>
-  <% end %>
+  <%= @manifest.widgets.render(self, @object, :form => f) %>
 
   <div id="actions">
     <%= f.submit %>

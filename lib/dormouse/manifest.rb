@@ -9,21 +9,27 @@ class Dormouse::Manifest
     @resource   = resource
     @properties = Dormouse::OrderedHash.new
 
-    @widgets    = Dormouse::Widgets.new(self)
     @tabs       = Dormouse::Tabs.new(self)
 
     generate_default_properties
 
     @style               = Dormouse.options[:style]
+    @namespace           = Dormouse.options[:default_namespace]
     @collection_type     = :list
-    @primary_name_column = @properties.keys.first
-    @namespace         ||= Dormouse.options[:default_namespace]
+    @primary_name_column = begin
+      if @properties.key? :name
+        :name
+      elsif @properties.key? :title
+        :title
+      else
+        @properties.keys.first
+      end
+    end
 
     self[:created_at].populate(:hidden => true) if self[:created_at]
     self[:updated_at].populate(:hidden => true) if self[:updated_at]
     self[:position].populate(:hidden => true)   if self[:position]
 
-    @widgets.reset!
     @tabs.reset!
   end
 
@@ -48,6 +54,9 @@ class Dormouse::Manifest
   # The list of form widgets.
   # @return [Dormouse::Widgets]
   attr_reader :widgets
+  def widgets
+    @widgets ||= Dormouse::Widgets.new(self)
+  end
 
   # The list of tabs.
   # @return [Dormouse::Tabs]
@@ -75,18 +84,11 @@ class Dormouse::Manifest
   # @return [Symbol]
   attr_accessor :collection_type
 
-  # Mounts this resource. <tt>map</tt> must be a route mapper. this method draws all relevant routes for this resource.
-  def mount(map)
-    Dormouse::ActionController::Builder.build(self, map)
-  end
-
   # get a property by name. <tt>:_primary</tt> and <tt>:_secondary</tt> are shortcuts to the <tt>primary_name_column</tt> and <tt>secondary_name_column</tt> properties.
   # @param [String, Symbol] name The name of the property
   # @return [Dormouse::Property]
   def [](name)
-    name = primary_name_column   if name == :_primary
-    name = secondary_name_column if name == :_secondary
-    name = children_association  if name == :_children
+    name = expand_property_name(name)
     @properties[name.to_sym]
   end
 
@@ -102,27 +104,19 @@ class Dormouse::Manifest
     self
   end
 
+  def reset!
+    @tabs.reset!
+    @widgets = nil
+    self
+  end
+
   def delete(name)
-    name = primary_name_column   if name == :_primary
-    name = secondary_name_column if name == :_secondary
-    name = children_association  if name == :_children
+    name = expand_property_name(name)
     @properties.delete(name.to_sym)
   end
 
-  # the superclass of the generated controller for this resource
-  def controller_superclass
-    @controller_superclass ||= begin
-      Dormouse.options[:controller_superclass].constantize
-    end
-  end
-
-  # the controller class for this resource
-  def controller_class
-    @controller_class ||= names.controller_class_name.constantize
-  end
-
   def inspect
-    "#<#{self}: #{@resource}>"
+    "#<#{self.class}: #{@resource}>"
   end
 
   def push(property_or_name)
@@ -135,6 +129,13 @@ class Dormouse::Manifest
   end
 
 private
+
+  def expand_property_name(name)
+    name = primary_name_column   if name == :_primary
+    name = secondary_name_column if name == :_secondary
+    name = children_association  if name == :_children
+    name
+  end
 
   def generate_default_properties
     resource.content_columns.each do |column|

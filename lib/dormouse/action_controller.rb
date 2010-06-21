@@ -8,7 +8,8 @@ module Dormouse::ActionController
     end
 
     def self.build_controller(manifest)
-      controller = Class.new(manifest.controller_superclass)
+      superclass = Dormouse.options[:controller_superclass].constantize
+      controller = Class.new(superclass)
       manifest.resource.const_set('ResourcesController', controller)
       controller.instance_variable_set '@manifest', manifest
       controller.send :include, Dormouse::ActionController
@@ -34,7 +35,7 @@ module Dormouse::ActionController
       return unless property.plural? and !property.options[:inline]
 
       manifest   = property.resource.manifest
-      controller = manifest.controller_class
+      controller = manifest.names.controller_class_name.constantize
       controller.potential_parents[property.name.to_sym] = parent
 
       name       = property.names.identifier(:plural => true, :short => true)
