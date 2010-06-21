@@ -1,29 +1,34 @@
 require 'rubygems'
+require 'tempfile'
+require 'test/unit'
 
-RAILS_ROOT = File.expand_path("../../", __FILE__) unless defined?(RAILS_ROOT)
-gem 'rails', '2.3.4'
-
-require 'active_support'
-require "active_record"
-require 'action_pack'
-require 'action_mailer'
-require 'initializer'
-
-require 'active_support/test_case'
 require 'shoulda'
+require 'mocha'
 
-require 'dormouse'
-
-ActiveRecord::Base.establish_connection({
-  :adapter => 'sqlite3',
-  :database => ':memory:'
-})
-
-ActiveRecord::Schema.define do
-  create_table "admin_blog_post", :force => true do |t|
-    t.column "title", :string
-    t.column "body",  :text
-  end
+case ENV['RAILS_VERSION']
+when '2.1' then
+  gem 'activerecord',  '~>2.1.0'
+  gem 'activesupport', '~>2.1.0'
+  gem 'actionpack',    '~>2.1.0'
+when '2.3' then
+  gem 'activerecord',  '~>2.3.0'
+  gem 'activesupport', '~>2.3.0'
+  gem 'actionpack',    '~>2.3.0'
+else
+  gem 'activerecord',  '~>3.0.0'
+  gem 'activesupport', '~>3.0.0'
+  gem 'actionpack',    '~>3.0.0'
 end
 
-require File.expand_path("../fixtures/models", __FILE__)
+require 'active_record'
+require 'active_record/version'
+require 'active_support'
+require 'action_pack'
+require 'action_controller'
+require 'action_view'
+require 'rails'
+
+ROOT = File.join(File.dirname(__FILE__), '..')
+$LOAD_PATH << File.join(ROOT, 'lib')
+require 'dormouse'
+puts "Testing against version #{ActiveRecord::VERSION::STRING}"

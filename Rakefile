@@ -51,6 +51,7 @@ begin
   Rcov::RcovTask.new do |test|
     test.libs << 'test'
     test.pattern = 'test/**/*_test.rb'
+    test.rcov_opts = %w{--rails --exclude osx\/objc,gems\/,spec\/}
     test.verbose = true
   end
 rescue LoadError

@@ -1,11 +1,20 @@
 # @author Simon Menke
-class Dormouse::Urls
+class Dormouse::URLs
 
-  def initialize(manifest_or_property)
-    if Dormouse::Property === manifest_or_property
-      @property = manifest_or_property
+  extend ActiveSupport::Memoizable
+
+  class << self
+    attr_accessor :helpers
+
+    def helpers
+      @helpers ||= ActionController::Base.helpers
     end
-    @resource = manifest_or_property.resource
+  end
+
+  def initialize(names, parent_names, namespace)
+    @names        = names
+    @parent_names = parent_names
+    @namespace    = namespace
   end
 
   # Build a url to the `index` action for this resource.
@@ -13,113 +22,338 @@ class Dormouse::Urls
   # @param [ActiveRecord::Base] parent The parent resource.
   # @return [String] a url
   def index(parent=nil)
-    @index ||= [base_url, local_part].join('/')
-    expand(@index, nil, parent)
+    if @parent_names
+      Dormouse::URLs.helpers.__send__ index_helper, parent
+    else
+      Dormouse::URLs.helpers.__send__ index_helper
+    end
   end
+
+  def index_helper
+    if @parent_names
+      [
+        @namespace || begin
+          namespace = @parent_names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @parent_names.identifier(:short => true),
+        @names.identifier(:short => true, :plural => true),
+        'path'
+      ].compact.join('_')
+    else
+      [
+        @namespace || begin
+          namespace = @names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @names.identifier(:short => true, :plural => true),
+        'path'
+      ].compact.join('_')
+    end
+  end
+
+  memoize :index_helper
+  private :index_helper
+
+  # Build a url to the `show` action for the resource `object`.
+  # @param [ActiveRecord::Base] object The resource.
+  # @return [String] a url
+  def show(object)
+    Dormouse::URLs.helpers.__send__ show_helper, object
+  end
+
+  def show_helper
+    [
+      @namespace || begin
+        namespace = @names.class_namespace
+        if namespace
+          namespace.underscore.gsub('/', '_')
+        else
+          nil
+        end
+      end,
+      @names.class_name(:short => true).underscore.gsub('/', '_'),
+      'path'
+    ].compact.join('_')
+  end
+
+  memoize :show_helper
+  private :show_helper
 
   # Build a url to the `new` action for this resource.
   # If `parent` is given the url will be relative to the parent.
   # @param [ActiveRecord::Base] parent The parent resource.
   # @return [String] a url
   def new(parent=nil)
-    @new ||= [base_url, local_part, 'new'].join('/')
-    expand(@new, nil, parent)
+    if @parent_names
+      Dormouse::URLs.helpers.__send__ new_helper, parent
+    else
+      Dormouse::URLs.helpers.__send__ new_helper
+    end
   end
+
+  def new_helper
+    if @parent_names
+      [
+        'new',
+        @namespace || begin
+          namespace = @parent_names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @parent_names.identifier(:short => true),
+        @names.identifier(:short => true),
+        'path'
+      ].compact.join('_')
+    else
+      [
+        'new',
+        @namespace || begin
+          namespace = @names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @names.identifier(:short => true),
+        'path'
+      ].compact.join('_')
+    end
+  end
+
+  memoize :new_helper
+  private :new_helper
+
+  # Build a url to the `edit` action for the resource `object`.
+  # @param [ActiveRecord::Base] object The resource.
+  # @return [String] a url
+  def edit(object)
+    Dormouse::URLs.helpers.__send__ edit_helper, object
+  end
+
+  def edit_helper
+    [
+      'edit',
+      @namespace || begin
+        namespace = @names.class_namespace
+        if namespace
+          namespace.underscore.gsub('/', '_')
+        else
+          nil
+        end
+      end,
+      @names.class_name(:short => true).underscore.gsub('/', '_'),
+      'path'
+    ].compact.join('_')
+  end
+
+  memoize :edit_helper
+  private :edit_helper
 
   # Build a url to the `create` action for this resource.
   # If `parent` is given the url will be relative to the parent.
   # @param [ActiveRecord::Base] parent The parent resource.
   # @return [String] a url
   def create(parent=nil)
-    @create ||= [base_url, local_part].join('/')
-    expand(@create, nil, parent)
+    if @parent_names
+      Dormouse::URLs.helpers.__send__ create_helper, parent
+    else
+      Dormouse::URLs.helpers.__send__ create_helper
+    end
   end
 
-  # Build a url to the `show` action for the resource `object`.
-  # @param [ActiveRecord::Base] object The resource.
-  # @return [String] a url
-  def show(object)
-    @show ||= [base_url, local_part, ':id'].join('/')
-    expand(@show, object, nil)
+  def create_helper
+    if @parent_names
+      [
+        @namespace || begin
+          namespace = @parent_names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @parent_names.identifier(:short => true),
+        @names.identifier(:short => true, :plural => true),
+        'path'
+      ].compact.join('_')
+    else
+      [
+        @namespace || begin
+          namespace = @names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @names.identifier(:short => true, :plural => true),
+        'path'
+      ].compact.join('_')
+    end
   end
 
-  # Build a url to the `edit` action for the resource `object`.
-  # @param [ActiveRecord::Base] object The resource.
-  # @return [String] a url
-  def edit(object)
-    @edit ||= [base_url, local_part, ':id', 'edit'].join('/')
-    expand(@edit, object, nil)
-  end
+  memoize :create_helper
+  private :create_helper
 
   # Build a url to the `update` action for the resource `object`.
   # @param [ActiveRecord::Base] object The resource.
   # @return [String] a url
   def update(object)
-    @update ||= [base_url, local_part, ':id'].join('/')
-    expand(@update, object, nil)
+    Dormouse::URLs.helpers.__send__ update_helper, object
   end
+
+  def update_helper
+    [
+      @namespace || begin
+        namespace = @names.class_namespace
+        if namespace
+          namespace.underscore.gsub('/', '_')
+        else
+          nil
+        end
+      end,
+      @names.class_name(:short => true).underscore.gsub('/', '_'),
+      'path'
+    ].compact.join('_')
+  end
+
+  memoize :update_helper
+  private :update_helper
 
   # Build a url to the `destroy` action for the resource `object`.
   # @param [ActiveRecord::Base] object The resource.
   # @return [String] a url
   def destroy(object)
-    @destroy ||= [base_url, local_part, ':id'].join('/')
-    expand(@destroy, object, nil)
+    Dormouse::URLs.helpers.__send__ destroy_helper, object
   end
 
-protected
-
-  def namespace
-    @namespace ||= begin
-      if @property
-        parent_urls = @property.manifest.urls
-        parent_urls.namespace
-      else
-        if @resource.manifest.namespace
-          @resource.manifest.namespace
+  def destroy_helper
+    [
+      @namespace || begin
+        namespace = @names.class_namespace
+        if namespace
+          namespace.underscore.gsub('/', '_')
         else
-          namespace = @resource.to_s.split('::')
-          namespace.pop
-          namespace = namespace.join('/').underscore.gsub('_', '/')
+          nil
         end
-      end
+      end,
+      @names.class_name(:short => true).underscore.gsub('/', '_'),
+      'path'
+    ].compact.join('_')
+  end
+
+  memoize :destroy_helper
+  private :destroy_helper
+
+  # Build a url to the `create_many` action for this resource.
+  # If `parent` is given the url will be relative to the parent.
+  # @param [ActiveRecord::Base] parent The parent resource.
+  # @return [String] a url
+  def create_many(parent=nil)
+    if @parent_names
+      Dormouse::URLs.helpers.__send__ create_many_helper, parent
+    else
+      Dormouse::URLs.helpers.__send__ create_many_helper
     end
   end
 
-  def base_url
-    @base_url ||= begin
-      if @property
-        parent_urls = @property.manifest.urls
-        if namespace.blank?
-          ['', parent_urls.local_part, ':parent_id'].join('/')
-        else
-          ['', namespace, parent_urls.local_part, ':parent_id'].join('/')
-        end
-      else
-        if namespace.blank?
-          ''
-        else
-          ['', namespace].join('/')
-        end
-      end
+  def create_many_helper
+    if @parent_names
+      [
+        'create_many',
+        @namespace || begin
+          namespace = @parent_names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @parent_names.identifier(:short => true),
+        @names.identifier(:short => true, :plural => true),
+        'path'
+      ].compact.join('_')
+    else
+      [
+        'create_many',
+        @namespace || begin
+          namespace = @names.class_namespace
+          if namespace
+            namespace.underscore.gsub('/', '_')
+          else
+            nil
+          end
+        end,
+        @names.identifier(:short => true, :plural => true),
+        'path'
+      ].compact.join('_')
     end
   end
 
-  def local_part
-    @local_part ||= begin
-      if @property
-        @property.names.identifier(:short => true, :plural => true)
-      else
-        @resource.manifest.names.identifier(:short => true, :plural => true)
-      end
-    end
+  memoize :create_many_helper
+  private :create_many_helper
+
+  # Build a url to the `update_many` action for this resource.
+  # @return [String] a url
+  def update_many
+    Dormouse::URLs.helpers.__send__ update_many_helper
   end
 
-  def expand(pattern, object, parent)
-    pattern = pattern.dup
-    pattern.sub!(':id',        object.id.to_s) if object
-    pattern.sub!(':parent_id', parent.id.to_s) if parent
-    pattern
+  def update_many_helper
+    [
+      'update_many',
+      @namespace || begin
+        namespace = @names.class_namespace
+        if namespace
+          namespace.underscore.gsub('/', '_')
+        else
+          nil
+        end
+      end,
+      @names.class_name(:short => true, :plural => true).underscore.gsub('/', '_'),
+      'path'
+    ].compact.join('_')
   end
+
+  memoize :update_many_helper
+  private :update_many_helper
+
+  # Build a url to the `destroy_many` action for this resource.
+  # @return [String] a url
+  def destroy_many
+    Dormouse::URLs.helpers.__send__ destroy_many_helper
+  end
+
+  def destroy_many_helper
+    [
+      'destroy_many',
+      @namespace || begin
+        namespace = @names.class_namespace
+        if namespace
+          namespace.underscore.gsub('/', '_')
+        else
+          nil
+        end
+      end,
+      @names.class_name(:short => true, :plural => true).underscore.gsub('/', '_'),
+      'path'
+    ].compact.join('_')
+  end
+
+  memoize :destroy_many_helper
+  private :destroy_many_helper
 
 end

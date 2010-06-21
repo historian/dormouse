@@ -1,6 +1,8 @@
 # @author Simon Menke
 class Dormouse::Property
 
+  extend ActiveSupport::Memoizable
+
   def initialize(manifest, target, table_name=nil)
     if Symbol === target or String === target
       @name   = target.to_sym
@@ -101,11 +103,19 @@ class Dormouse::Property
   end
 
   def names
-    @names ||= Dormouse::Names.new(self)
+    if association?
+      if plural?
+        @names ||= Dormouse::Names.new(@target.klass.to_s, @target.name.to_s.singularize)
+      else
+        @names ||= Dormouse::Names.new(@target.klass.to_s, @target.name.to_s)
+      end
+    end
   end
 
   def urls
-    @urls ||= Dormouse::Urls.new(self)
+    if self.names
+      @urls ||= Dormouse::URLs.new(self.names, @target.manifest.names, @target.manifest.namespace)
+    end
   end
 
 end

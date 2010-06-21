@@ -7,7 +7,7 @@ module Dormouse
     :extentions            => %w( Dormouse::Extentions::Globalize Dormouse::Extentions::Paperclip Dormouse::Extentions::LalalaAssets ),
     :cms_name              => 'Administration',
     :resources             => [],
-    :default_namespace     => false
+    :default_namespace     => nil
   }.freeze
 
   def self.options

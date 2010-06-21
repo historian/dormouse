@@ -8,8 +8,7 @@ class Dormouse::Manifest
   def initialize(resource)
     @resource   = resource
     @properties = Dormouse::OrderedHash.new
-    @names      = Dormouse::Names.new(self)
-    @urls       = Dormouse::Urls.new(self)
+
     @widgets    = Dormouse::Widgets.new(self)
     @tabs       = Dormouse::Tabs.new(self)
 
@@ -35,10 +34,16 @@ class Dormouse::Manifest
   # A helper for building names for this resource.
   # @return [Dormouse::Names]
   attr_reader :names
+  def names
+    @names ||= Dormouse::Names.new(resource.to_s)
+  end
 
   # A helper for building urls to this resource.
-  # @return [Dormouse::Urls]
+  # @return [Dormouse::URLs]
   attr_reader :urls
+  def urls
+    @urls ||= Dormouse::URLs.new(self.names, nil)
+  end
 
   # The list of form widgets.
   # @return [Dormouse::Widgets]

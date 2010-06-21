@@ -1,195 +1,156 @@
 require File.expand_path('../../test_helper', __FILE__)
 
 class DormouseNamesTest < ActiveSupport::TestCase
-  
-  context "AdminBlog::Post" do
-    
-    should '#names.class_name equals "AdminBlog::Post"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.class_name, "AdminBlog::Post"
+
+  def self.builds(result, variant, options={})
+    should "#names.#{variant}(#{options.inspect}) equals #{result.inspect}" do
+      assert_equal @names.__send__(variant, options), result
     end
-    
-    should '#names.class_name(:short => true) equals "Post"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.class_name(:short => true), "Post"
-    end
-    
-    should '#names.class_name(:plural => true) equals "AdminBlog::Posts"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.class_name(:plural => true), "AdminBlog::Posts"
-    end
-    
-    should '#names.identifier equals "admin_blog_post"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.identifier, "admin_blog_post"
-    end
-    
-    should '#names.identifier(:short => true) equals "post"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.identifier(:short => true), "post"
-    end
-    
-    should '#names.identifier(:plural => true) equals "admin_blog_posts"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.identifier(:plural => true), "admin_blog_posts"
-    end
-    
-    should '#names.human equals "Admin blog post"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.human, "Admin blog post"
-    end
-    
-    should '#names.human(:short => true) equals "Post"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.human(:short => true), "Post"
-    end
-    
-    should '#names.human(:plural => true) equals "Admin blog posts"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.human(:plural => true), "Admin blog posts"
-    end
-    
-    should '#names.class_namespace equals "AdminBlog"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.class_namespace, "AdminBlog"
-    end
-    
-    should '#names.controller_class_name equals "AdminBlog::Post::ResourcesController"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.controller_class_name, "AdminBlog::Post::ResourcesController"
-    end
-    
-    should '#names.controller_name equals "admin_blog/post/resources"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.controller_name, "admin_blog/post/resources"
-    end
-    
-    should '#names.param_id equals "post_id"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.param_id, "post_id"
-    end
-    
-    should '#names.param_ids equals "post_ids"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.param_ids, "post_ids"
-    end
-    
-    should '#names.param equals "admin_blog_post"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.param, "admin_blog_post"
-    end
-    
-    should '#names.params equals "admin_blog_posts"' do
-      names = AdminBlog::Post.manifest.names
-      assert_equal names.params, "admin_blog_posts"
-    end
-    
-  end
-  
-  context "Admin::Blog::Post" do
-    
-    should '#names.class_name equals "Admin::Blog::Post"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.class_name, "Admin::Blog::Post"
-    end
-    
-    should '#names.class_name(:short => true) equals "Post"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.class_name(:short => true), "Post"
-    end
-    
-    should '#names.class_name(:plural => true) equals "Admin::Blog::Posts"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.class_name(:plural => true), "Admin::Blog::Posts"
-    end
-    
-    should '#names.identifier equals "admin_blog_post"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.identifier, "admin_blog_post"
-    end
-    
-    should '#names.identifier(:short => true) equals "post"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.identifier(:short => true), "post"
-    end
-    
-    should '#names.identifier(:plural => true) equals "admin_blog_posts"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.identifier(:plural => true), "admin_blog_posts"
-    end
-    
-    should '#names.human equals "Admin blog post"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.human, "Admin blog post"
-    end
-    
-    should '#names.human(:short => true) equals "Post"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.human(:short => true), "Post"
-    end
-    
-    should '#names.human(:plural => true) equals "Admin blog posts"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.human(:plural => true), "Admin blog posts"
-    end
-    
-    should '#names.class_namespace equals "Admin::Blog"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.class_namespace, "Admin::Blog"
-    end
-    
-    should '#names.controller_class_name equals "Admin::Blog::Post::ResourcesController"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.controller_class_name, "Admin::Blog::Post::ResourcesController"
-    end
-    
-    should '#names.controller_name equals "admin/blog/post/resources"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.controller_name, "admin/blog/post/resources"
-    end
-    
-    should '#names.param_id equals "post_id"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.param_id, "post_id"
-    end
-    
-    should '#names.param_ids equals "post_ids"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.param_ids, "post_ids"
-    end
-    
-    should '#names.param equals "admin_blog_post"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.param, "admin_blog_post"
-    end
-    
-    should '#names.params equals "admin_blog_posts"' do
-      names = Admin::Blog::Post.manifest.names
-      assert_equal names.params, "admin_blog_posts"
-    end
-    
   end
 
-# @example has_many :related_posts, :class_name => "AdminBlog::Post"
-#   names.class_name                  == "AdminBlog::Post"
-#   names.class_name(:short => true)  == "Post"
-#   names.class_name(:plural => true) == "AdminBlog::Posts"
-#   
-#   names.identifier                  == "related_post"
-#   names.identifier(:short => true)  == "related_post"
-#   names.identifier(:plural => true) == "related_posts"
-#   
-#   names.human                       == "Related post"
-#   names.human(:short => true)       == "Related post"
-#   names.human(:plural => true)      == "Related posts"
-#   
-#   names.class_namespace             == "AdminBlog"
-#   names.controller_class_name       == "AdminBlog::Post::ResourcesController"
-#   names.controller_name             == "admin_blog/post/resources"
-#   
-#   names.param_id                    == "related_post_id"
-#   names.param_ids                   == "related_post_ids"
-#   names.param                       == "admin_blog_post"
-#   names.params                      == "admin_blog_posts"
-  
+  context "AdminBlog::Post" do
+
+    setup do
+      @names = Dormouse::Names.new("AdminBlog::Post")
+    end
+
+    builds "AdminBlog::Post",  :class_name
+    builds "Post",             :class_name, :short => true
+    builds "AdminBlog::Posts", :class_name, :plural => true
+
+    builds "admin_blog_post",  :identifier
+    builds "post",             :identifier, :short => true
+    builds "admin_blog_posts", :identifier, :plural => true
+
+    builds "Admin blog post",  :human
+    builds "Post",             :human, :short => true
+    builds "Admin blog posts", :human, :plural => true
+
+    builds "AdminBlog",                            :class_namespace
+    builds "AdminBlog::Post::ResourcesController", :controller_class_name
+    builds "admin_blog/post/resources",            :controller_name
+
+    builds "post_id",          :param_id
+    builds "post_ids",         :param_ids
+    builds "admin_blog_post",  :param
+    builds "admin_blog_posts", :params
+
+  end
+
+  context "Admin::Blog::Post" do
+
+    setup do
+      @names = Dormouse::Names.new("Admin::Blog::Post")
+    end
+
+    builds "Admin::Blog::Post",  :class_name
+    builds "Post",               :class_name, :short => true
+    builds "Admin::Blog::Posts", :class_name, :plural => true
+
+    builds "admin_blog_post",  :identifier
+    builds "post",             :identifier, :short => true
+    builds "admin_blog_posts", :identifier, :plural => true
+
+    builds "Admin blog post",  :human
+    builds "Post",             :human, :short => true
+    builds "Admin blog posts", :human, :plural => true
+
+    builds "Admin::Blog",                            :class_namespace
+    builds "Admin::Blog::Post::ResourcesController", :controller_class_name
+    builds "admin/blog/post/resources",            :controller_name
+
+    builds "post_id",          :param_id
+    builds "post_ids",         :param_ids
+    builds "admin_blog_post",  :param
+    builds "admin_blog_posts", :params
+
+  end
+
+  context "Admin::BlogPost" do
+
+    setup do
+      @names = Dormouse::Names.new("Admin::BlogPost")
+    end
+
+    builds "Admin::BlogPost",  :class_name
+    builds "BlogPost",         :class_name, :short => true
+    builds "Admin::BlogPosts", :class_name, :plural => true
+
+    builds "admin_blog_post",  :identifier
+    builds "blog_post",        :identifier, :short => true
+    builds "admin_blog_posts", :identifier, :plural => true
+
+    builds "Admin blog post",  :human
+    builds "Blog post",        :human, :short => true
+    builds "Admin blog posts", :human, :plural => true
+
+    builds "Admin",                                :class_namespace
+    builds "Admin::BlogPost::ResourcesController", :controller_class_name
+    builds "admin/blog_post/resources",            :controller_name
+
+    builds "blog_post_id",     :param_id
+    builds "blog_post_ids",    :param_ids
+    builds "admin_blog_post",  :param
+    builds "admin_blog_posts", :params
+
+  end
+
+  context "BlogPost" do
+
+    setup do
+      @names = Dormouse::Names.new("BlogPost")
+    end
+
+    builds "BlogPost",  :class_name
+    builds "BlogPost",  :class_name, :short => true
+    builds "BlogPosts", :class_name, :plural => true
+
+    builds "blog_post",  :identifier
+    builds "blog_post",  :identifier, :short => true
+    builds "blog_posts", :identifier, :plural => true
+
+    builds "Blog post",  :human
+    builds "Blog post",  :human, :short => true
+    builds "Blog posts", :human, :plural => true
+
+    builds nil,                              :class_namespace
+    builds "BlogPost::ResourcesController", :controller_class_name
+    builds "blog_post/resources",           :controller_name
+
+    builds "blog_post_id",  :param_id
+    builds "blog_post_ids", :param_ids
+    builds "blog_post",     :param
+    builds "blog_posts",    :params
+
+  end
+
+  context "AdminBlog::Post#related_posts" do
+
+    setup do
+      @names = Dormouse::Names.new("AdminBlog::Post", :related_post)
+    end
+
+    builds "AdminBlog::Post",  :class_name
+    builds "Post",             :class_name, :short => true
+    builds "AdminBlog::Posts", :class_name, :plural => true
+
+    builds "related_post",  :identifier
+    builds "related_post",  :identifier, :short => true
+    builds "related_posts", :identifier, :plural => true
+
+    builds "Related post",  :human
+    builds "Related post",  :human, :short => true
+    builds "Related posts", :human, :plural => true
+
+    builds "AdminBlog",                            :class_namespace
+    builds "AdminBlog::Post::ResourcesController", :controller_class_name
+    builds "admin_blog/post/resources",            :controller_name
+
+    builds "related_post_id",  :param_id
+    builds "related_post_ids", :param_ids
+    builds "admin_blog_post",  :param
+    builds "admin_blog_posts", :params
+
+  end
+
 end
