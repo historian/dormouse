@@ -69,9 +69,11 @@ class Dormouse::Names
 
   extend ActiveSupport::Memoizable
 
-  def initialize(resource, attribute)
+  def initialize(resource, attribute, table, plural)
     @resource  = resource.to_s  if resource
     @attribute = attribute.to_s if attribute
+    @table     = table.to_s     if table
+    @plural    = !!plural
   end
 
   # Build the class name of this resource
@@ -184,5 +186,23 @@ class Dormouse::Names
     end
   end
   memoize :params
+
+  def column
+    if param_id
+      "#{@table}.#{param_id}"
+    else
+      "#{@table}.#{param}"
+    end
+  end
+  memoize :column
+
+  def id
+    if @plural
+      params
+    else
+      param
+    end
+  end
+  memoize :id
 
 end

@@ -11,7 +11,7 @@
     <div class="inner">
       <%= form_for @object, :url => save_url, :html => {:class => 'form', :multipart => true} do |f| %>
 
-      <%= @manifest.widgets.render(self, @object, :form => f) %>
+      <%=raw @manifest.widgets.render(self, @object, :form => f) %>
 
       <div class="group navform wat-cf">
         <button class="button" type="submit">

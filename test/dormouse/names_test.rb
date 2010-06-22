@@ -11,7 +11,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "AdminBlog::Post" do
 
     setup do
-      @names = Dormouse::Names.new("AdminBlog::Post", nil)
+      @names = Dormouse::Names.new("AdminBlog::Post", nil, nil, false)
     end
 
     builds "AdminBlog::Post",  :class_name
@@ -40,7 +40,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "Admin::Blog::Post" do
 
     setup do
-      @names = Dormouse::Names.new("Admin::Blog::Post", nil)
+      @names = Dormouse::Names.new("Admin::Blog::Post", nil, nil, false)
     end
 
     builds "Admin::Blog::Post",  :class_name
@@ -69,7 +69,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "Admin::BlogPost" do
 
     setup do
-      @names = Dormouse::Names.new("Admin::BlogPost", nil)
+      @names = Dormouse::Names.new("Admin::BlogPost", nil, nil, false)
     end
 
     builds "Admin::BlogPost",  :class_name
@@ -98,7 +98,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "BlogPost" do
 
     setup do
-      @names = Dormouse::Names.new("BlogPost", nil)
+      @names = Dormouse::Names.new("BlogPost", nil, nil, false)
     end
 
     builds "BlogPost",  :class_name
@@ -127,7 +127,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "AdminBlog::Post#related_posts" do
 
     setup do
-      @names = Dormouse::Names.new("AdminBlog::Post", :related_post)
+      @names = Dormouse::Names.new("AdminBlog::Post", :related_post, nil, false)
     end
 
     builds "AdminBlog::Post",  :class_name
@@ -156,7 +156,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "#title" do
 
     setup do
-      @names = Dormouse::Names.new(nil, :title)
+      @names = Dormouse::Names.new(nil, :title, nil, false)
     end
 
     builds nil, :class_name
@@ -185,7 +185,7 @@ class DormouseNamesTest < ActiveSupport::TestCase
   context "#short_description" do
 
     setup do
-      @names = Dormouse::Names.new(nil, :short_description)
+      @names = Dormouse::Names.new(nil, :short_description, nil, false)
     end
 
     builds nil, :class_name

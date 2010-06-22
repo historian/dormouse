@@ -8,7 +8,7 @@
 
   <%#= f.error_messages %>
 
-  <%= @manifest.widgets.render(self, @object, :form => f) %>
+  <%=raw @manifest.widgets.render(self, @object, :form => f) %>
 
   <div id="actions">
     <%= f.submit %>

@@ -19,9 +19,10 @@ module Dormouse::ActionController
     def self.build_routes(manifest, map)
       name       = manifest.names.identifier(:plural => true, :short => true)
       namespace  = manifest.namespace || manifest.names.controller_namespace
+      mnamespace = namespace.gsub('/', '_') + "_" if namespace
       controller = manifest.names.controller_name
 
-      options = { :controller => controller, :collection => { :update_many => :put, :destroy_many => :delete, :create_many => :post }, :path_prefix => "/#{namespace}" }
+      options = { :controller => controller, :collection => { :update_many => :put, :destroy_many => :delete, :create_many => :post }, :path_prefix => "/#{namespace}", :name_prefix => mnamespace }
       map.resources name.to_sym, options do |subresource|
         manifest.each do |property|
 
@@ -36,7 +37,7 @@ module Dormouse::ActionController
 
       manifest   = property.resource.manifest
       controller = manifest.names.controller_class_name.constantize
-      controller.potential_parents[property.names.param.to_sym] = parent
+      controller.potential_parents[property.names.id] = parent
 
       name       = property.names.identifier(:plural => true, :short => true)
       controller = property.names.controller_name
@@ -51,6 +52,7 @@ module Dormouse::ActionController
 
   included do
     helper_method :manifest, :save_url
+    before_filter :activate_controller
     before_filter :assign_manifest
     before_filter :lookup_parent, :only => [:index, :new, :create]
     respond_to    :html, :xml, :json
@@ -229,9 +231,9 @@ private
                             manifest.resource)
 
     if manifest[:position]
-      order = "#{manifest[:position].name(:table => true)} #{manifest[:created_at].name(:table => true)}"
+      order = "#{manifest[:position].names.column} #{manifest[:created_at].names.column}"
     else
-      order = "#{manifest[:created_at].name(:table => true)}"
+      order = "#{manifest[:created_at].names.column}"
     end
     count = 0
 
@@ -263,6 +265,10 @@ private
     collection = collection.dormouse_order(manifest, order)
 
     [count, collection.all]
+  end
+
+  def activate_controller
+    Thread.current[:current_controller] = self
   end
 
 end

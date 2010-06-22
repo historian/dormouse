@@ -41,14 +41,14 @@ class Dormouse::Manifest
   # @return [Dormouse::Names]
   attr_reader :names
   def names
-    @names ||= Dormouse::Names.new(resource, nil)
+    @names ||= Dormouse::Names.new(resource, nil, nil, false)
   end
 
   # A helper for building urls to this resource.
   # @return [Dormouse::URLs]
   attr_reader :urls
   def urls
-    @urls ||= Dormouse::URLs.new(self.names, nil)
+    @urls ||= Dormouse::URLs.new(self.names, nil, self.namespace)
   end
 
   # The list of form widgets.
@@ -89,7 +89,7 @@ class Dormouse::Manifest
   # @return [Dormouse::Property]
   def [](name)
     name = expand_property_name(name)
-    @properties[name.to_sym]
+    @properties[name.to_s]
   end
 
   # loop over each property in the specified order.
@@ -112,7 +112,7 @@ class Dormouse::Manifest
 
   def delete(name)
     name = expand_property_name(name)
-    @properties.delete(name.to_sym)
+    @properties.delete(name.to_s)
   end
 
   def inspect
@@ -124,7 +124,7 @@ class Dormouse::Manifest
     if String === property_or_name
       property = Dormouse::Property.new(self, property_or_name)
     end
-    @properties[property.names.param] = property
+    @properties[property.names.id] = property
     property
   end
 
@@ -139,13 +139,13 @@ private
 
   def generate_default_properties
     resource.content_columns.each do |column|
-      property = Dormouse::Property.new(self, column)
-      @properties[property.names.param] = property
+      property = Dormouse::Property.new(self, column, resource.table_name)
+      @properties[property.names.id] = property
     end
 
     resource.reflect_on_all_associations.each do |association|
       property = Dormouse::Property.new(self, association)
-      @properties[property.names.param] = property
+      @properties[property.names.id] = property
     end
 
     (Dormouse.options[:extentions] || []).each do |extention|

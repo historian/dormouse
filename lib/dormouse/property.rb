@@ -15,17 +15,20 @@ class Dormouse::Property
       @type   = :string
       @hidden = true
 
-      @names = Dormouse::Names.new(nil, @name)
+      @names = Dormouse::Names.new(nil, @name, @table_name, false)
 
     else
       # assotiations and composites
       @target = target
       if plural?
         @names = Dormouse::Names.new(
-          @target.klass, @target.name.to_s.singularize)
+          @target.klass, @target.name.to_s.singularize, @table_name, true)
+      elsif reflection?
+        @names = Dormouse::Names.new(
+          @target.klass, @target.name, @table_name, false)
       else
         @names = Dormouse::Names.new(
-          @target.klass, @target.name)
+          nil, @target.name, @table_name, false)
       end
     end
 
@@ -112,7 +115,7 @@ class Dormouse::Property
   attr_reader :urls
   def urls
     if association?
-      @urls ||= Dormouse::URLs.new(self.names, @target.manifest.names, @target.manifest.namespace)
+      @urls ||= Dormouse::URLs.new(self.names, @manifest.names, @manifest.namespace)
     end
   end
 
