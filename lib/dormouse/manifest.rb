@@ -1,6 +1,7 @@
 # @author Simon Menke
 class Dormouse::Manifest
 
+  extend ActiveSupport::Memoizable
   include Enumerable
 
   COLLECTION_TYPES = [:list, :tree, :grid]
@@ -8,8 +9,6 @@ class Dormouse::Manifest
   def initialize(resource)
     @resource   = resource
     @properties = Dormouse::OrderedHash.new
-
-    @tabs       = Dormouse::Tabs.new(self)
 
     generate_default_properties
 
@@ -29,8 +28,6 @@ class Dormouse::Manifest
     self[:created_at].populate(:hidden => true) if self[:created_at]
     self[:updated_at].populate(:hidden => true) if self[:updated_at]
     self[:position].populate(:hidden => true)   if self[:position]
-
-    @tabs.reset!
   end
 
   # the resource class (must be an instance of ActiveRecord::Base)
@@ -57,10 +54,6 @@ class Dormouse::Manifest
   def widgets
     @widgets ||= Dormouse::Widgets.new(self)
   end
-
-  # The list of tabs.
-  # @return [Dormouse::Tabs]
-  attr_reader :tabs
 
   # The name of the column representing the primary name of this resource. this is displayed as the clickable link in a list or tree.
   # @return [Symbol]
@@ -105,7 +98,6 @@ class Dormouse::Manifest
   end
 
   def reset!
-    @tabs.reset!
     @widgets = nil
     self
   end
@@ -128,7 +120,51 @@ class Dormouse::Manifest
     property
   end
 
+  attr_accessor :owner
+  def owner
+    @owner || default_owner
+  end
+
+  attr_reader :ownees
+  def ownees
+    @ownees ||= begin
+      self.inject([]) do |memo, prop|
+        next(memo) unless prop.type == :has_one or prop.type == :has_many
+        prop_owner = prop.resource.manifest.owner
+        next(memo) unless prop_owner == @resource.to_s
+
+        memo << prop.names.id
+        memo
+      end
+    end
+  end
+
 private
+
+  def default_owner
+    potential_owners = self.select do |property|
+      property.type == :belongs_to
+    end
+
+    if potential_owners.size == 1
+      property = potential_owners.first
+      unless FalseClass === property.options[:owner]
+        return property.resource.to_s
+      end
+    end
+
+    potential_owners = potential_owners.select do |property|
+      property.options[:owner]
+    end
+
+    if potential_owners.size == 1
+      property = potential_owners.first
+      return property.resource.to_s
+    else
+      nil
+    end
+  end
+  memoize :default_owner
 
   def expand_property_name(name)
     name = primary_name_column   if name == :_primary

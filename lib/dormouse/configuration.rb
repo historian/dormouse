@@ -5,7 +5,6 @@ module Dormouse
     :style                 => 'dormouse',
     :controller_superclass => 'ApplicationController',
     :extentions            => %w(
-      Dormouse::Extentions::Menu
       Dormouse::Extentions::Globalize
       Dormouse::Extentions::Paperclip
       Dormouse::Extentions::LalalaAssets ),
@@ -16,6 +15,12 @@ module Dormouse
 
   def self.options
     @options ||= DEFAULT_OPTIONS.dup
+  end
+
+  def self.manifests
+    @manifests ||= options[:resources].collect do |name|
+      name.constantize.manifest
+    end
   end
 
 end

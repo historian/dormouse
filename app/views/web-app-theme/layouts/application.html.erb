@@ -20,9 +20,16 @@
       <div id="main-navigation">
         <ul class="wat-cf">
 
-          <% Dormouse.menu.each_with_index do |(key, item), idx| %>
-            <%= content_tag :li, :class => [('first' if idx == 0), ('active' if request.path.starts_with?(item.url))].compact.join(' ') do %>
-              <%= link_to item.name, item.url %>
+          <% Dormouse.manifests.each_with_index do |manifest, idx| %>
+            <%
+              next if manifest.owner
+              url     = manifest.urls.index
+              active  = 'active' if request.path.starts_with?(url)
+              first   = 'first'  if idx == 0
+              classes = [first, active].compact.join(' ')
+            %>
+            <%= content_tag :li, :class => classes do %>
+              <%= link_to manifest.names.human(:short => true, :plural => true), url %>
             <% end %>
           <% end %>
 

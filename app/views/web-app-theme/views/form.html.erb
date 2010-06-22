@@ -1,8 +1,8 @@
 <div class="block" id="block-forms">
   <div class="secondary-navigation">
     <ul class="wat-cf">
-      <% @manifest.tabs.each_with_index do |tab, idx| %>
-        <li class="<%= 'first' if idx == 0 %>"><%= link_to tab.name, tab.url_for_object(@object) %></li>
+      <% @manifest.ownees.each_with_index do |name, idx| prop = @manifest[name] %>
+        <li class="<%= 'first' if idx == 0 %>"><%= link_to prop.names.human(:short => true, :plural => true), prop.urls.index(@object) %></li>
   <% end %>
 </ul>
   </div>
