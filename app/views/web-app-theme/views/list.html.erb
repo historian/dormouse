@@ -31,22 +31,16 @@
         <table class="table">
           <tr>
             <th class="first"><input type="checkbox" class="checkbox toggle" /></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th class="last">&nbsp;</th>
+            <th class="last">Name</th>
           </tr>
           <% @collection.each do |object| %>
           <%= content_tag_for :tr, object, :class => cycle(%w(odd even)) do %>
             <td><input type="checkbox" class="checkbox" name="id" value="1" /></td>
-            <td><%= object.id %></td>
-            <td>
+            <td class="last">
               <%= link_to object.__send__(manifest.primary_name_column), manifest.urls.edit(object) %>
               <% if manifest.secondary_name_column %>
               <span><%= object.__send__(manifest.secondary_name_column) %></span>
               <% end %>
-            </td>
-            <td class="last">
-              <%= link_to 'destroy', manifest.urls.destroy(object), :method => :delete, :alert => 'Ar you sure?' %>
             </td>
           <% end %>
           <% end %>
