@@ -74,6 +74,12 @@ class Dormouse::DSL
   end
 
 
+  def sidebar(type, options={})
+    @manifest.sidebars[type.to_sym].populate(options)
+    self
+  end
+
+
   # hide one or more properties in the form.
   # @param [#to_sym] properties property names
   # @return [Dormouse::DSL] self

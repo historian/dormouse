@@ -1,0 +1,17 @@
+<div class="block">
+  <h3>Filters</h3>
+  <div class="content">
+
+    <div id="letters">
+    <% letters = ('A'..'Z').to_a + ('0'..'9').to_a + ['$']
+       letters.each do |letter| %>
+      <%= link_to letter, "?l=#{letter}" %>
+    <% end %>
+    </div>
+
+    <div id="filters">
+
+    </div>
+
+  </div>
+</div>

@@ -1,4 +1,4 @@
-<% content_for :actions do %>
+<% content_for :sidebar do %>
 <div class="block">
   <h3>Actions</h3>
   <ul class="navigation">
@@ -9,6 +9,10 @@
     <% end %>
   </ul>
 </div>
+
+  <% @manifest.sidebars.render(params[:action]) do |sidebar| %>
+    <%= render(sidebar) %>
+  <% end %>
 <% end %>
 
 <div class="block" id="block-tables">

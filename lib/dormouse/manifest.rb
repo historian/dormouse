@@ -58,6 +58,13 @@ class Dormouse::Manifest
     @widgets ||= Dormouse::Widgets.new(self)
   end
 
+  # The list of sidebars.
+  # @return [Dormouse::Sidebars]
+  attr_reader :sidebars
+  def sidebars
+    @sidebars ||= Dormouse::Sidebars.new(self)
+  end
+
   # The list of tabs.
   # @return [Dormouse::Tabs]
   attr_reader :tabs
@@ -104,12 +111,14 @@ class Dormouse::Manifest
     self
   end
 
+  # reset any cached values.
   def reset!
     @tabs.reset!
     @widgets = nil
     self
   end
 
+  # Delete a property from the manifest.
   def delete(name)
     name = expand_property_name(name)
     @properties.delete(name.to_sym)
@@ -119,6 +128,8 @@ class Dormouse::Manifest
     "#<#{self.class}: #{@resource}>"
   end
 
+
+  # Push a new property.
   def push(property_or_name)
     property = property_or_name
     if String === property_or_name
