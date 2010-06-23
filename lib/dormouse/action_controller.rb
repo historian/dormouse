@@ -19,31 +19,48 @@ module Dormouse::ActionController
     def self.build_routes(manifest, map)
       name       = manifest.names.identifier(:plural => true, :short => true)
       namespace  = manifest.namespace || manifest.names.controller_namespace
-      mnamespace = namespace.gsub('/', '_') + "_" if namespace
       controller = manifest.names.controller_name
 
-      options = { :controller => controller, :collection => { :update_many => :put, :destroy_many => :delete, :create_many => :post }, :path_prefix => "/#{namespace}", :name_prefix => mnamespace }
-      map.resources name.to_sym, options do |subresource|
-        manifest.each do |property|
+      map.instance_eval do
+        scope :path        => "/#{namespace}",
+              :name_prefix => namespace.try(:gsub, '/', '_') do
+          resources name.to_sym, :controller => controller do
 
-          build_sub_routes(manifest, property, subresource)
+            collection do
+              post   :create_many
+              put    :update_many
+              delete :destroy_many
+            end
 
+            manifest.each do |property|
+              Dormouse::ActionController::Builder.build_sub_routes(
+                manifest, property, self)
+            end
+
+          end
         end
       end
     end
 
     def self.build_sub_routes(parent, property, map)
       return unless property.plural? and !property.options[:inline]
-
-      manifest   = property.resource.manifest
-      controller = manifest.names.controller_class_name.constantize
-      controller.potential_parents[property.names.id] = parent
-
       name       = property.names.identifier(:plural => true, :short => true)
       controller = property.names.controller_name
 
-      options = { :controller => controller, :only => [:index, :new, :create], :collection => { :create_many => :post } }
-      map.resources name.to_sym, options
+      options = { :controller => controller, :only => [:index, :new, :create] }
+
+      map.instance_eval do
+        scope :dormouse_association  => property.names.id,
+              :dormouse_parent_class => parent.resource.to_s do
+          resources name.to_sym, options do
+
+            collection do
+              post :create_many
+            end
+
+          end
+        end
+      end
     end
 
   end
@@ -99,18 +116,15 @@ module Dormouse::ActionController
     attrs = params[@manifest.names.param]
 
     if @parent
-      @object = @parent.__send__(@parent_association).create!(attrs)
+      @object = @parent.__send__(@parent_association).build(attrs)
     else
-      @object = @manifest.resource.create!(attrs)
+      @object = @manifest.resource.new(attrs)
     end
 
-    respond_with(@object)
-
-  rescue ActiveRecord::RecordInvalid => e
-    @object = e.record
-
-    respond_with(@object) do |format|
-      format.html { render :template => "#{@manifest.style}/views/form" }
+    if @object.save
+      redirect_to manifest.urls.show(@object)
+    else
+      render :template => "#{@manifest.style}/views/form"
     end
   end
 
@@ -125,32 +139,26 @@ module Dormouse::ActionController
       end
     end
 
-    model.resource.transaction do
-      @objects.collect { |object| object.save! }
-    end
+    if @objects.all? { |object| object.valid? }
+      model.resource.transaction do
+        @objects.collect { |object| object.save! }
+      end
 
-    respond_with(@objects, :location => manifest.urls.index(@parent))
-
-  rescue ActiveRecord::RecordInvalid => e
-    @object = e.record
-
-    respond_with(@objects) do |format|
-      format.html { redirect_to manifest.urls.index(@parent) }
+      redirect_to manifest.urls.index(@parent)
+    else
+      redirect_to :back
     end
   end
 
   def update
     attrs = params[@manifest.names.param]
 
-    @object = @manifest.resource.find(params[:id]).update_attributes!(attrs)
+    @object = @manifest.resource.find(params[:id])
 
-    respond_with(@object)
-
-  rescue ActiveRecord::RecordInvalid => e
-    @object = e.record
-
-    respond_with(@object) do |format|
-      format.html { render :template => "#{@manifest.style}/views/form" }
+    if @object.update_attributes(attrs)
+      redirect_to manifest.urls.show(@object)
+    else
+      render :template => "#{@manifest.style}/views/form"
     end
   end
 
@@ -215,14 +223,14 @@ private
   end
 
   def lookup_parent
-    self.class.potential_parents.each do |association, manifest|
-      param = manifest.names.param_id
-      if params[param]
-        @parent_manifest = manifest
-        @parent = manifest.resource.find(params[param])
-        @parent_association = association
-        break
-      end
+    if  klass = params[:dormouse_parent_class] \
+    and assoc = params[:dormouse_association]
+      klass = klass.constantize
+      @parent_manifest    = klass.manifest
+      @parent_association = assoc
+
+      param   = @parent_manifest.names.param_id
+      @parent = @parent_manifest.resource.find(params[param])
     end
   end
 
@@ -239,24 +247,24 @@ private
 
     if query = params[:q] and !query.blank?
       collection = collection.dormouse_search(manifest, query)
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     end
 
     if letter = params[:l] and !letter.blank?
       collection = collection.dormouse_search(manifest, letter[0,1])
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     end
 
     if filter = params[:f] and filter = manifest.filters[filters.to_sym]
       collection = collection.dormouse_filter(manifest, filter)
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     end
 
     count = collection.count
 
     if page = params[:p] and !page.blank?
       collection = collection.dormouse_paginate(manifest, page)
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     else
       collection = collection.dormouse_paginate(manifest, 1)
     end
@@ -276,10 +284,5 @@ end
 module Dormouse::ActionController::ClassMethods
 
   attr_accessor :manifest
-  attr_reader :potential_parents
-
-  def potential_parents
-    @potential_parents ||= {}
-  end
 
 end

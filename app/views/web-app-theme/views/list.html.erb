@@ -1,4 +1,4 @@
-<% content_for :sidebar do %>
+<% content_for :sidebars do %>
 <div class="block">
   <h3>Actions</h3>
   <ul class="navigation">
@@ -17,6 +17,12 @@
 
 <div class="block" id="block-tables">
   <div class="secondary-navigation">
+    <% if @manifest.owner %>
+      <% man = @manifest.owner.constantize.manifest %>
+    <ul class="wat-cf">
+      <li class="first"><%= link_to "#{man.names.human(:short => true)}: #{@parent.__send__(man.primary_name_column)}", man.urls.show(@parent) %></li>
+    </ul>
+    <% end %>
   </div>
   <div class="content">
     <h2 class="title"><%= manifest.names.human(:plural => true) %></h2>

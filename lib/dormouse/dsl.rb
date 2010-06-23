@@ -69,6 +69,7 @@ class Dormouse::DSL
 
 
   def sidebar(type, options={})
+    @manifest.sidebars[type.to_sym] ||= Dormouse::Sidebar.new(type.to_sym, options)
     @manifest.sidebars[type.to_sym].populate(options)
     self
   end

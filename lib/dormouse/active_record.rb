@@ -17,7 +17,7 @@ module Dormouse::ActiveRecord::ClassMethods
     else
       query = "#{query}%"
     end
-    where("#{manifest[:_primary].name(:table => true)} LIKE ?", query)
+    where("#{manifest[:_primary].names.column} LIKE ?", query)
   end
 
   def dormouse_paginate(manifest, page)

@@ -32,10 +32,11 @@ class Dormouse::Sidebars < Dormouse::OrderedHash
 
   def initialize(manifest)
     @manifest = manifest
+    super()
   end
 
   def render(action)
-    self.each do |sidebar|
+    self.each do |_, sidebar|
       next unless sidebar.render_for_action?(action)
 
       partial = "#{@manifest.style}/sidebars/#{sidebar.type}"

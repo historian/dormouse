@@ -1,4 +1,13 @@
-<% content_for :sidebar do %>
+<% content_for :sidebars do %>
+
+  <% unless @object.new_record? %>
+  <div class="block">
+    <h3>Actions</h3>
+    <ul class="navigation">
+      <li><%= link_to "Delete this #{manifest.names.human(:short => true).downcase}", @manifest.urls.destroy(@object) %></li>
+    </ul>
+  </div>
+  <% end %>
 
   <% @manifest.sidebars.render(params[:action]) do |sidebar| %>
     <%= render(sidebar) %>
@@ -8,11 +17,13 @@
 
 <div class="block" id="block-forms">
   <div class="secondary-navigation">
+    <% unless @object.new_record? %>
     <ul class="wat-cf">
       <% @manifest.ownees.each_with_index do |name, idx| prop = @manifest[name] %>
-        <li class="<%= 'first' if idx == 0 %>"><%= link_to prop.names.human(:short => true, :plural => true), prop.urls.index(@object) %></li>
-  <% end %>
-</ul>
+      <li class="<%= 'first' if idx == 0 %>"><%= link_to prop.names.human(:short => true, :plural => true), prop.urls.index(@object) %></li>
+      <% end %>
+    </ul>
+    <% end %>
   </div>
   <div class="content">
     <h2 class="title"><%= manifest.names.human(:short => true) %></h2>
@@ -25,7 +36,7 @@
         <button class="button" type="submit">
           <img src="images/icons/tick.png" alt="Save" /> Save
         </button>
-        <a href="#header" class="button">
+        <a href="" class="button">
           <img src="images/icons/cross.png" alt="Cancel"/> Cancel
         </a>
       </div>
