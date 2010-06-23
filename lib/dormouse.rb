@@ -12,6 +12,7 @@ module Dormouse
   require 'dormouse/dsl'
   require 'dormouse/widgets'
   require 'dormouse/extentions'
+  require 'dormouse/sidebars'
 
   require 'dormouse/active_record'
   require 'dormouse/action_controller'

@@ -4,8 +4,6 @@ class Dormouse::Manifest
   extend ActiveSupport::Memoizable
   include Enumerable
 
-  COLLECTION_TYPES = [:list, :tree, :grid]
-
   def initialize(resource)
     @resource   = resource
     @properties = Dormouse::OrderedHash.new
@@ -55,6 +53,13 @@ class Dormouse::Manifest
     @widgets ||= Dormouse::Widgets.new(self)
   end
 
+  # The list of sidebars.
+  # @return [Dormouse::Sidebars]
+  attr_reader :sidebars
+  def sidebars
+    @sidebars ||= Dormouse::Sidebars.new(self)
+  end
+
   # The name of the column representing the primary name of this resource. this is displayed as the clickable link in a list or tree.
   # @return [Symbol]
   attr_accessor :primary_name_column
@@ -97,11 +102,13 @@ class Dormouse::Manifest
     self
   end
 
+  # reset any cached values.
   def reset!
     @widgets = nil
     self
   end
 
+  # Delete a property from the manifest.
   def delete(name)
     name = expand_property_name(name)
     @properties.delete(name.to_s)
@@ -111,6 +118,8 @@ class Dormouse::Manifest
     "#<#{self.class}: #{@resource}>"
   end
 
+
+  # Push a new property.
   def push(property_or_name)
     property = property_or_name
     if String === property_or_name

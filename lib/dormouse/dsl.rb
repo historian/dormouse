@@ -44,12 +44,6 @@ class Dormouse::DSL
   # @return [Dormouse::DSL] self
   def collection_type(type)
     type = (type || :list).to_sym
-
-    allowed_types = Dormouse::Manifest::COLLECTION_TYPES
-    unless allowed_types.include?(type)
-      raise ArgumentError, "Invalid collection type: #{type.inspect} (must be in #{allowed_types.inspect})"
-    end
-
     @manifest.collection_type = type
     self
   end
@@ -71,6 +65,12 @@ class Dormouse::DSL
 
   def children(property)
     set(property, :children => true)
+  end
+
+
+  def sidebar(type, options={})
+    @manifest.sidebars[type.to_sym].populate(options)
+    self
   end
 
 
