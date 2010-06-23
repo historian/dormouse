@@ -3,8 +3,6 @@ class Dormouse::Manifest
 
   include Enumerable
 
-  COLLECTION_TYPES = [:list, :tree, :grid]
-
   def initialize(resource)
     @resource   = resource
     @properties = Dormouse::OrderedHash.new
