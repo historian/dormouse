@@ -11,7 +11,7 @@ class Dormouse::Sidebar < Struct.new(:type, :options)
     self.options = self.options.merge(options)
   end
 
-  def render_for_action(action)?
+  def render_for_action?(action)
     action = action.to_sym
 
     if self.options[:except] and self.options[:except].include?(action)
@@ -28,7 +28,7 @@ class Dormouse::Sidebar < Struct.new(:type, :options)
 
 end
 
-module Dormouse::Sidebars < Dormouse::OrderedHash.new
+class Dormouse::Sidebars < Dormouse::OrderedHash
 
   def initialize(manifest)
     @manifest = manifest
