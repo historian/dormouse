@@ -2,7 +2,6 @@
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
-require 'bundler'
 require 'dormouse/version'
 
 Gem::Specification.new do |s|
@@ -21,5 +20,5 @@ Gem::Specification.new do |s|
   s.files        = Dir.glob("{app,lib}/**/*") + %w(LICENSE README.md ROADMAP.md CHANGELOG.md)
   s.require_path = 'lib'
 
-  s.add_bundler_dependencies
+  s.add_runtime_dependency "rails", "~> 3.0"
 end
