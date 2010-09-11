@@ -20,8 +20,12 @@ module Dormouse::ActiveRecord::ClassMethods
     where("#{manifest[:_primary].names.column} LIKE ?", query)
   end
 
-  def dormouse_paginate(manifest, page)
-    limit(25).offset((page.to_i - 1) * 25)
+  def dormouse_paginate(manifest, page, size)
+    if size == 'all'
+      self
+    else
+      limit(25).offset((page.to_i - 1) * size)
+    end
   end
 
   def dormouse_order(manifest, columns)

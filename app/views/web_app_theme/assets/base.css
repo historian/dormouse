@@ -95,7 +95,7 @@ body {
   padding: 15px 15px 0 15px;
 }
 
-#sidebar .block .filters .letters a {
+#sidebar .block .filters .letters label {
   display: inline-block;
   padding: 3px;
   width: 1em;
@@ -124,7 +124,7 @@ body {
   padding: 0 15px 15px;
 }
 
-#main .main p.first {
+#main .main p:first-child {
   margin-top: 0;
 }
 
@@ -216,7 +216,7 @@ body {
   text-align: left;
 }
 
-.table th.first {
+.table th:first-child {
   width: 30px;
 }
 

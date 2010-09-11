@@ -73,6 +73,11 @@ module Dormouse::ActionController
     before_filter :assign_manifest
     before_filter :lookup_parent, :only => [:index, :new, :create]
     respond_to    :html, :xml, :json
+    style_helper = ("#{manifest.style.classify}Helper".constantize rescue nil)
+    if style_helper
+      helper style_helper
+      style_helper.prepare
+    end
     layout "#{manifest.style}/layouts/application"
   end
 
@@ -238,6 +243,13 @@ private
     collection = (@parent ? @parent.__send__(@parent_association) :
                             manifest.resource)
 
+    unless params[:'page-size'].blank?
+      cookies[:page_size] = params[:'page-size']
+    end
+
+    page_size = cookies[:page_size] || 25
+    page_size = page_size.to_i unless page_size == 'all'
+
     if manifest[:position]
       order = "#{manifest[:position].names.column} #{manifest[:created_at].names.column}"
     else
@@ -263,10 +275,10 @@ private
     count = collection.count
 
     if page = params[:p] and !page.blank?
-      collection = collection.dormouse_paginate(manifest, page)
+      collection = collection.dormouse_paginate(manifest, page, page_size)
       order = manifest[:_primary].names.column
     else
-      collection = collection.dormouse_paginate(manifest, 1)
+      collection = collection.dormouse_paginate(manifest, 1, page_size)
     end
 
     order = params[:o] unless params[:o].blank?

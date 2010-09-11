@@ -1,8 +1,5 @@
 # -*- encoding: utf-8 -*-
-lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
-
-require 'dormouse/version'
+require File.expand_path("../lib/dormouse/version", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "dormouse"
@@ -17,8 +14,9 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "dormouse"
 
-  s.files        = Dir.glob("{app,lib}/**/*") + %w(LICENSE README.md ROADMAP.md CHANGELOG.md)
+  s.files        = `git ls-files`.split("\n")
+  s.executables  = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
   s.require_path = 'lib'
 
-  s.add_runtime_dependency "rails", "~> 3.0"
+  s.add_runtime_dependency 'rails', '~> 3.0'
 end
