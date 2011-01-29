@@ -2,10 +2,14 @@
 class Dormouse::Railtie < Rails::Engine
 
   config.dormouse = ActiveSupport::OrderedOptions.new
-  config.dormouse.merge! Dormouse::DEFAULT_OPTIONS
-
-  initializer "dormouse.setup_configuration" do |app|
-    Dormouse.options.merge! app.config.dormouse
-  end
+  config.dormouse.style                 = 'dormouse',
+  config.dormouse.controller_superclass = 'ApplicationController',
+  config.dormouse.extentions            = %w(
+      Dormouse::Extentions::Globalize
+      Dormouse::Extentions::Paperclip
+      Dormouse::Extentions::LalalaAssets ),
+  config.dormouse.cms_name              = 'Administration',
+  config.dormouse.resources             = [],
+  config.dormouse.default_namespace     = nil
 
 end

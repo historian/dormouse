@@ -7,7 +7,7 @@ class Dormouse::URLs
     attr_accessor :helpers
 
     def helpers
-      @helpers || Thread.current[:current_controller]
+      @helpers || Thread.current[:'dormouse.current_controller']
     end
   end
 

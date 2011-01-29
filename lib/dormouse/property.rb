@@ -24,8 +24,13 @@ class Dormouse::Property
         @names = Dormouse::Names.new(
           @target.klass, @target.name.to_s.singularize, @table_name, true)
       elsif reflection?
-        @names = Dormouse::Names.new(
-          @target.klass, @target.name, @table_name, false)
+        if polymorphic?
+          @names = Dormouse::Names.new(
+            nil, @target.name, @table_name, false)
+        else
+          @names = Dormouse::Names.new(
+            @target.klass, @target.name, @table_name, false)
+        end
       else
         @names = Dormouse::Names.new(
           nil, @target.name, @table_name, false)

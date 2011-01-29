@@ -1,6 +1,8 @@
 <ul id="tabs">
-  <% @manifest.tabs.each do |tab| %>
-    <li><%= link_to tab.name, tab.url_for_object(@object) %></li>
+  <% unless @object.new_record? %>
+    <% @manifest.ownees.each do |name| prop = @manifest[name] %>
+    <li><%= link_to prop.names.human(:short => true, :plural => true), prop.urls.index(@object) %></li>
+    <% end %>
   <% end %>
 </ul>
 

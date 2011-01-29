@@ -1,6 +1,6 @@
 module Dormouse::Extentions::LalalaAssets
 
-  def self.call(manifest)
+  def self.define(manifest)
     resource = manifest.resource
 
     if resource.respond_to?(:singular_attachments)

@@ -1,6 +1,6 @@
 module Dormouse::Extentions::Paperclip
 
-  def self.call(manifest)
+  def self.define(manifest)
     resource = manifest.resource
     return unless resource.respond_to?(:attachment_definitions)
     definitions = resource.attachment_definitions || {}

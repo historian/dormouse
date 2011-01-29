@@ -8,7 +8,7 @@ module Dormouse::ActionController
     end
 
     def self.build_controller(manifest)
-      superclass = Dormouse.options[:controller_superclass].constantize
+      superclass = Rails.application.config.dormouse.controller_superclass.constantize
       controller = Class.new(superclass)
       manifest.resource.const_set('ResourcesController', controller)
       controller.instance_variable_set '@manifest', manifest
@@ -18,26 +18,32 @@ module Dormouse::ActionController
 
     def self.build_routes(manifest, map)
       name       = manifest.names.identifier(:plural => true, :short => true)
-      namespace  = manifest.namespace || manifest.names.controller_namespace
       controller = manifest.names.controller_name
+      ns         = manifest.namespace || manifest.names.controller_namespace
+      ns         = ns.split('/')
 
-      map.instance_eval do
-        scope :path        => "/#{namespace}",
-              :name_prefix => namespace.try(:gsub, '/', '_') do
-          resources name.to_sym, :controller => controller do
+      this = map
 
-            collection do
-              post   :create_many
-              put    :update_many
-              delete :destroy_many
-            end
+      ns.each do |part|
+        this.instance_eval do
+          namespace(part) { this = self }
+        end
+      end
 
-            manifest.each do |property|
-              Dormouse::ActionController::Builder.build_sub_routes(
-                manifest, property, self)
-            end
+      this.instance_eval do
+        resources name.to_sym, :controller => controller do
 
+          collection do
+            post   :create_many
+            put    :update_many
+            delete :destroy_many
           end
+
+          manifest.each do |property|
+            Dormouse::ActionController::Builder.build_sub_routes(
+              manifest, property, self)
+          end
+
         end
       end
     end
@@ -68,8 +74,8 @@ module Dormouse::ActionController
   extend ActiveSupport::Concern
 
   included do
+    include Dormouse::BaseController
     helper_method :manifest, :save_url
-    before_filter :activate_controller
     before_filter :assign_manifest
     before_filter :lookup_parent, :only => [:index, :new, :create]
     respond_to    :html, :xml, :json
@@ -287,14 +293,28 @@ private
     [count, collection.all]
   end
 
-  def activate_controller
-    Thread.current[:current_controller] = self
-  end
-
 end
 
 module Dormouse::ActionController::ClassMethods
 
   attr_accessor :manifest
+
+end
+
+module Dormouse::BaseController
+  extend ActiveSupport::Concern
+
+  included do
+    around_filter :activate_controller
+  end
+
+private
+
+  def activate_controller
+    Thread.current[:'dormouse.current_controller'] = self
+    yield
+  ensure
+    Thread.current[:'dormouse.current_controller'] = nil
+  end
 
 end

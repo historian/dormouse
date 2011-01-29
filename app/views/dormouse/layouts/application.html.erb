@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dormouse</title>
+  <title><%= Rails.application.config.dormouse.cms_name %></title>
   <style type="text/css" media="screen">
 
 body {
@@ -31,8 +31,10 @@ body {
 <body>
 
 <ul id="menu">
-  <% Dormouse.menu.each do |item| %>
-    <li><%= link_to item.name, item.url %></li>
+  <% main_menu_items do |manifest, url, active, first, last| %>
+    <%= content_tag :li, :class => classes(:active => active, :first => first, :last => last) do %>
+      <%= link_to manifest.names.human(:short => true, :plural => true), url %>
+    <% end %>
   <% end %>
 </ul>
 

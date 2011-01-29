@@ -10,8 +10,8 @@ class Dormouse::Manifest
 
     generate_default_properties
 
-    @style               = Dormouse.options[:style]
-    @namespace           = Dormouse.options[:default_namespace]
+    @style               = Rails.application.config.dormouse.style
+    @namespace           = Rails.application.config.dormouse.default_namespace
     @collection_type     = :list
     @primary_name_column = begin
       if @properties.key? :name
@@ -90,6 +90,11 @@ class Dormouse::Manifest
     @properties[name.to_s]
   end
 
+  def properties
+    @properties.sort!
+    @properties.keys
+  end
+
   # loop over each property in the specified order.
   # @yield [property]
   # @yieldparam [Dormouse::Property] property
@@ -122,7 +127,7 @@ class Dormouse::Manifest
   # Push a new property.
   def push(property_or_name)
     property = property_or_name
-    if String === property_or_name
+    if String === property_or_name or Symbol === property_or_name
       property = Dormouse::Property.new(self, property_or_name)
     end
     @properties[property.names.id] = property
@@ -190,12 +195,12 @@ private
 
     resource.reflect_on_all_associations.each do |association|
       property = Dormouse::Property.new(self, association)
-      @properties[property.names.id] = property
+      @properties[property.names.assotiation_id] = property
     end
 
-    (Dormouse.options[:extentions] || []).each do |extention|
+    (Rails.application.config.dormouse.extentions || []).each do |extention|
       extention = (Class === extention ? extention : extention.constantize)
-      extention.call(self) if extention.respond_to?(:call)
+      extention.define(self) if extention.respond_to?(:call)
     end
 
   rescue ActiveRecord::StatementInvalid => e

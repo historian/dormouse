@@ -1,6 +1,6 @@
 module Dormouse::Extentions::Globalize
 
-  def self.call(manifest)
+  def self.define(manifest)
     if manifest['globalize_translations']
 
       property = manifest.delete('globalize_translations')

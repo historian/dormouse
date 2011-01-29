@@ -143,6 +143,8 @@ class Dormouse::DSL
   def set(property, options={})
     property = property.to_sym
 
+    return self unless @manifest[property]
+
     if options.key?(:primary) and options.delete(:primary)
       @manifest.primary_name_column = property
     end
