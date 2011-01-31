@@ -205,13 +205,13 @@ class Dormouse::Names
   end
   memoize :id
 
-  def assotiation_id
+  def association_id
     if @plural
       identifier(:plural => true)
     else
       identifier(:plural => false)
     end
   end
-  memoize :assotiation_id
+  memoize :association_id
 
 end

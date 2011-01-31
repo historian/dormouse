@@ -1,22 +1,22 @@
-require File.expand_path('../../test_helper', __FILE__)
-
-class DormouseUrlsTest < ActiveSupport::TestCase
+describe "Dormouse::URLs for" do
 
   def self.builds(variant, varguments, result, rarguments)
-    should "#urls.#{variant}(#{varguments.inspect}) calls #helpers.#{result}(#{rarguments.inspect})" do
-      helpers = mock('helpers') do
-        expects(result).with(*rarguments)
-      end
+    varguments_list = varguments.map { |i| i.inspect }.join(', ')
+    rarguments_list = rarguments.map { |i| i.inspect }.join(', ')
+
+    it "#urls.#{variant}(#{varguments_list}) calls #helpers.#{result}(#{rarguments_list})" do
+      helpers = mock('helpers')
+      helpers.should_receive(result).with(*rarguments).once
       Dormouse::URLs.helpers = helpers
-      @urls.__send__(variant, *varguments)
+      urls.__send__(variant, *varguments)
     end
   end
 
   context "AdminBlog::Post" do
 
-    setup do
-      @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("AdminBlog::Post", nil),
+    let(:urls) do
+      Dormouse::URLs.new(
+        Dormouse::Names.new("AdminBlog::Post", nil, nil, false),
         nil,
         nil)
     end
@@ -55,9 +55,9 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
   context "Admin::Blog::Post" do
 
-    setup do
-      @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("Admin::Blog::Post", nil),
+    let(:urls) do
+      Dormouse::URLs.new(
+        Dormouse::Names.new("Admin::Blog::Post", nil, nil, false),
         nil,
         nil)
     end
@@ -96,9 +96,9 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
   context "Admin::BlogPost" do
 
-    setup do
-      @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("Admin::BlogPost", nil),
+    let(:urls) do
+      Dormouse::URLs.new(
+        Dormouse::Names.new("Admin::BlogPost", nil, nil, false),
         nil,
         nil)
     end
@@ -137,9 +137,9 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
   context "BlogPost" do
 
-    setup do
-      @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("BlogPost", nil),
+    let(:urls) do
+      Dormouse::URLs.new(
+        Dormouse::Names.new("BlogPost", nil, nil, false),
         nil,
         nil)
     end
@@ -178,9 +178,9 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
   context "BlogPost" do
 
-    setup do
-      @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("BlogPost", nil),
+    let(:urls) do
+      Dormouse::URLs.new(
+        Dormouse::Names.new("BlogPost", nil, nil, false),
         nil,
         'cms')
     end
@@ -217,12 +217,12 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
   end
 
-  context "Admin::Blog::Comment" do
+  context "Admin::Post - Admin::Blog::Comment#approved_comment" do
 
-    setup do
-      @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("Admin::Comment", :approved_comment),
-        Dormouse::Names.new("Admin::Post", nil),
+    let(:urls) do
+      Dormouse::URLs.new(
+        Dormouse::Names.new("Admin::Comment", :approved_comment, nil, false),
+        Dormouse::Names.new("Admin::Post", nil, nil, false),
         nil)
     end
 
@@ -258,12 +258,12 @@ class DormouseUrlsTest < ActiveSupport::TestCase
 
   end
 
-  context "Admin::Blog::Comment" do
+  context "Admin::Post - Admin::Blog::Comment#approved_comment" do
 
-    setup do
-      @urls = Dormouse::URLs.new(
-        Dormouse::Names.new("Admin::Comment", :approved_comment),
-        Dormouse::Names.new("Admin::Post", nil),
+    let(:urls) do
+      Dormouse::URLs.new(
+        Dormouse::Names.new("Admin::Comment", :approved_comment, nil, false),
+        Dormouse::Names.new("Admin::Post",    nil, nil, false),
         'cms')
     end
 
@@ -294,7 +294,7 @@ class DormouseUrlsTest < ActiveSupport::TestCase
     builds :update_many,                     [],
            :update_many_cms_comments_path, []
 
-    builds :destroy_many,                     [],
+    builds :destroy_many,                   [],
            :destroy_many_cms_comments_path, []
 
   end

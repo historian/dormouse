@@ -152,7 +152,7 @@ module Dormouse::ActionController
 
     if @objects.all? { |object| object.valid? }
       model.resource.transaction do
-        @objects.collect { |object| object.save! }
+        @objects.each { |object| object.save! }
       end
 
       redirect_to manifest.urls.index(@parent)

@@ -1,5 +1,5 @@
 #
-# The DSL is used by the <tt>#manifest</tt> macro in ActiveRecord::Base to set
+# The DSL is used by the `#manifest` macro in ActiveRecord::Base to set
 # options on properties.
 #
 # @example A simple post model

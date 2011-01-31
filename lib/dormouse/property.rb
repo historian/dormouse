@@ -11,15 +11,16 @@ class Dormouse::Property
 
     if Symbol === target or String === target
       # normal columns
-      @name   = target.to_sym
+      @name   = target.to_s
       @type   = :string
       @hidden = true
 
       @names = Dormouse::Names.new(nil, @name, @table_name, false)
 
     else
-      # assotiations and composites
+      # associations and composites
       @target = target
+      @name = @target.name.to_s
       if plural?
         @names = Dormouse::Names.new(
           @target.klass, @target.name.to_s.singularize, @table_name, true)
@@ -33,14 +34,18 @@ class Dormouse::Property
         end
       else
         @names = Dormouse::Names.new(
-          nil, @target.name, @table_name, false)
+          nil, @name, @table_name, false)
       end
+    end
+
+    if association?
+      @urls = Dormouse::URLs.new(self.names, @manifest.names, @manifest.namespace)
     end
 
     populate
   end
 
-  attr_reader :options, :order_options, :manifest
+  attr_reader :options, :order_options, :manifest, :name
   attr_accessor :hidden
   attr_accessor :description
 
@@ -118,10 +123,5 @@ class Dormouse::Property
   attr_reader :names
 
   attr_reader :urls
-  def urls
-    if association?
-      @urls ||= Dormouse::URLs.new(self.names, @manifest.names, @manifest.namespace)
-    end
-  end
 
 end

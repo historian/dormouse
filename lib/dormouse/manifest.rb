@@ -5,14 +5,19 @@ class Dormouse::Manifest
   include Enumerable
 
   def initialize(resource)
+    @collection_type = :list
+    @style           = Dormouse.style
+    @namespace       = Dormouse.default_namespace
+
     @resource   = resource
     @properties = Dormouse::OrderedHash.new
+    @names      = Dormouse::Names.new(@resource, nil, nil, false)
+    @urls       = Dormouse::URLs.new(@names, nil, @namespace)
+    @widgets    = Dormouse::Widgets.new(self)
+    @sidebars   = Dormouse::Sidebars.new(self)
 
     generate_default_properties
 
-    @style               = Rails.application.config.dormouse.style
-    @namespace           = Rails.application.config.dormouse.default_namespace
-    @collection_type     = :list
     @primary_name_column = begin
       if @properties.key? :name
         :name
@@ -35,42 +40,30 @@ class Dormouse::Manifest
   # A helper for building names for this resource.
   # @return [Dormouse::Names]
   attr_reader :names
-  def names
-    @names ||= Dormouse::Names.new(resource, nil, nil, false)
-  end
 
   # A helper for building urls to this resource.
   # @return [Dormouse::URLs]
   attr_reader :urls
-  def urls
-    @urls ||= Dormouse::URLs.new(self.names, nil, self.namespace)
-  end
 
   # The list of form widgets.
   # @return [Dormouse::Widgets]
   attr_reader :widgets
-  def widgets
-    @widgets ||= Dormouse::Widgets.new(self)
-  end
 
   # The list of sidebars.
   # @return [Dormouse::Sidebars]
   attr_reader :sidebars
-  def sidebars
-    @sidebars ||= Dormouse::Sidebars.new(self)
-  end
 
   # The name of the column representing the primary name of this resource. this is displayed as the clickable link in a list or tree.
-  # @return [Symbol]
+  # @return [String]
   attr_accessor :primary_name_column
 
   # The name of the column representing the secondary name of this resource. this is displayed below the clickable link in a list or tree.
-  # @return [Symbol]
+  # @return [String]
   attr_accessor :secondary_name_column
 
   attr_accessor :children_association
 
-  # The style used to render this resource. defaults to <tt>'dormouse'</tt>.
+  # The style used to render this resource. defaults to `'dormouse'`.
   # @return [Symbol]
   attr_accessor :style
 
@@ -78,11 +71,11 @@ class Dormouse::Manifest
   # @return [String]
   attr_accessor :namespace
 
-  # The collection type of this resource. Possible options are <tt>list</tt>, <tt>:tree</tt> and <tt>:grid</tt>
+  # The collection type of this resource. Possible options are `list`, `:tree` and `:grid`
   # @return [Symbol]
   attr_accessor :collection_type
 
-  # get a property by name. <tt>:_primary</tt> and <tt>:_secondary</tt> are shortcuts to the <tt>primary_name_column</tt> and <tt>secondary_name_column</tt> properties.
+  # get a property by name. `:_primary` and `:_secondary` are shortcuts to the `primary_name_column` and `secondary_name_column` properties.
   # @param [String, Symbol] name The name of the property
   # @return [Dormouse::Property]
   def [](name)
@@ -90,6 +83,7 @@ class Dormouse::Manifest
     @properties[name.to_s]
   end
 
+  # @return [Array<String>]
   def properties
     @properties.sort!
     @properties.keys
@@ -119,12 +113,14 @@ class Dormouse::Manifest
     @properties.delete(name.to_s)
   end
 
+  # @return [String]
   def inspect
     "#<#{self.class}: #{@resource}>"
   end
 
 
   # Push a new property.
+  # @return [Dormouse::Property]
   def push(property_or_name)
     property = property_or_name
     if String === property_or_name or Symbol === property_or_name
@@ -195,10 +191,10 @@ private
 
     resource.reflect_on_all_associations.each do |association|
       property = Dormouse::Property.new(self, association)
-      @properties[property.names.assotiation_id] = property
+      @properties[property.names.association_id] = property
     end
 
-    (Rails.application.config.dormouse.extentions || []).each do |extention|
+    (Dormouse.extentions || []).each do |extention|
       extention = (Class === extention ? extention : extention.constantize)
       extention.define(self) if extention.respond_to?(:call)
     end
