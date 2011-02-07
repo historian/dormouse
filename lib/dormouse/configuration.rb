@@ -13,12 +13,12 @@ module Dormouse
   }.freeze
 
   def self.options
-    @options ||= DEFAULT_OPTIONS.dup
+    Rails.application.config.dormouse
   end
 
   def self.manifests
-    @manifests ||= options[:resources].collect do |name|
-      name.constantize.manifest
+    @manifests ||= options[:resources].collect do |resource|
+      resource.to_s.constantize.manifest
     end
   end
 
