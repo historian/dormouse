@@ -224,6 +224,8 @@ private
         break
       end
     end
+    
+    nil
   end
 
   def lookup_collection
@@ -233,30 +235,30 @@ private
     if manifest[:position]
       order = "#{manifest[:position].names.column} #{manifest[:created_at].names.column}"
     else
-      order = "#{manifest[:created_at].names.column}"
+      order = manifest[:created_at].names.column
     end
     count = 0
 
     if query = params[:q] and !query.blank?
       collection = collection.dormouse_search(manifest, query)
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     end
 
     if letter = params[:l] and !letter.blank?
       collection = collection.dormouse_search(manifest, letter[0,1])
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     end
 
     if filter = params[:f] and filter = manifest.filters[filters.to_sym]
       collection = collection.dormouse_filter(manifest, filter)
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     end
 
     count = collection.count
 
     if page = params[:p] and !page.blank?
       collection = collection.dormouse_paginate(manifest, page)
-      order = manifest[:_primary].name(:table => true)
+      order = manifest[:_primary].names.column
     else
       collection = collection.dormouse_paginate(manifest, 1)
     end

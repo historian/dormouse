@@ -11,8 +11,13 @@ module Dormouse
   require 'dormouse/urls'
   require 'dormouse/dsl'
   require 'dormouse/widgets'
-  require 'dormouse/extentions'
+  require 'dormouse/extensions'
   require 'dormouse/sidebars'
+  
+  module Extensions
+    require 'dormouse/extensions/paperclip'
+    require 'dormouse/extensions/lalala_assets'
+  end
 
   require 'dormouse/active_record'
   require 'dormouse/action_controller'

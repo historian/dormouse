@@ -4,10 +4,9 @@ module Dormouse
   DEFAULT_OPTIONS = {
     :style                 => 'dormouse',
     :controller_superclass => 'ApplicationController',
-    :extentions            => %w(
-      Dormouse::Extentions::Globalize
-      Dormouse::Extentions::Paperclip
-      Dormouse::Extentions::LalalaAssets ),
+    :extensions            => %w(
+      Dormouse::Extensions::Paperclip
+      Dormouse::Extensions::LalalaAssets ),
     :cms_name              => 'Administration',
     :resources             => [],
     :default_namespace     => nil
