@@ -1,26 +1,41 @@
 # @author Simon Menke
 module Dormouse
 
+  DEFAULT_OPTIONS = {
+    :style                 => 'dormouse',
+    :controller_superclass => 'ApplicationController',
+    :extensions            => %w(
+      Dormouse::Extensions::Paperclip
+      Dormouse::Extensions::LalalaAssets ),
+    :cms_name              => 'Administration',
+    :resources             => [],
+    :default_namespace     => nil
+  }.freeze
+
+  def self.options
+    Rails.application.config.dormouse
+  end
+
   def self.manifests
-    resources.map do |name|
-      name.constantize.manifest
+    @manifests ||= resources.collect do |resource|
+      resource.to_s.constantize.manifest
     end
   end
 
   def self.resources
-    Rails.application.config.dormouse.resources
+    options.resources
   end
 
   def self.style
-    Rails.application.config.dormouse.style
+    options.style
   end
 
   def self.default_namespace
-    Rails.application.config.dormouse.default_namespace
+    options.default_namespace
   end
 
   def self.extentions
-    Rails.application.config.dormouse.extentions
+    options.extentions
   end
 
 end

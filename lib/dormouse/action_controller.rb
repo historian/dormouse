@@ -243,6 +243,8 @@ private
       param   = @parent_manifest.names.param_id
       @parent = @parent_manifest.resource.find(params[param])
     end
+
+    nil
   end
 
   def lookup_collection
@@ -259,7 +261,7 @@ private
     if manifest[:position]
       order = "#{manifest[:position].names.column} #{manifest[:created_at].names.column}"
     else
-      order = "#{manifest[:created_at].names.column}"
+      order = manifest[:created_at].names.column
     end
     count = 0
 

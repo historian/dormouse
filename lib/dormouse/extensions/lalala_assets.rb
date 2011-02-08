@@ -1,4 +1,4 @@
-module Dormouse::Extentions::LalalaAssets
+module Dormouse::Extensions::LalalaAssets
 
   def self.define(manifest)
     resource = manifest.resource

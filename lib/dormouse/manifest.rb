@@ -194,7 +194,7 @@ private
       @properties[property.names.association_id] = property
     end
 
-    (Dormouse.extentions || []).each do |extention|
+    (Dormouse.options[:extensions] || []).each do |extention|
       extention = (Class === extention ? extention : extention.constantize)
       extention.define(self) if extention.respond_to?(:call)
     end

@@ -1,4 +1,4 @@
-module Dormouse::Extentions::Paperclip
+module Dormouse::Extensions::Paperclip
 
   def self.define(manifest)
     resource = manifest.resource
