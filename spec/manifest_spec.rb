@@ -4,7 +4,7 @@ describe "Dormouse::Manifest" do
   before do
     Dormouse.stub!(:style).and_return('dormouse')
     Dormouse.stub!(:default_namespace).and_return('admin')
-    Dormouse.stub!(:extentions).and_return([])
+    Dormouse.stub!(:extensions).and_return([])
   end
 
   describe 'without associations:' do

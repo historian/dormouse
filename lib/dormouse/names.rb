@@ -143,7 +143,7 @@ class Dormouse::Names
 
   def controller_name
     if class_name
-      "#{class_name}::Resources".underscore
+      "#{class_name(:short => true)}::Resources".underscore
     end
   end
   memoize :controller_name
@@ -186,6 +186,16 @@ class Dormouse::Names
     end
   end
   memoize :params
+
+  def attribute
+    identifier(:short => true)
+  end
+  memoize :attribute
+
+  def attributes
+    identifier(:short => true, :plural => true)
+  end
+  memoize :attributes
 
   def column
     if param_id

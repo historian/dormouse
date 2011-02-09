@@ -22,15 +22,7 @@ module Dormouse::ActionController
       ns         = manifest.namespace || manifest.names.controller_namespace
       ns         = ns.split('/')
 
-      this = map
-
-      ns.each do |part|
-        this.instance_eval do
-          namespace(part) { this = self }
-        end
-      end
-
-      this.instance_eval do
+      definition = proc do
         resources name.to_sym, :controller => controller do
 
           collection do
@@ -46,6 +38,12 @@ module Dormouse::ActionController
 
         end
       end
+
+      definition = ns.reverse.inject(definition) do |d, part|
+        proc { namespace(part) { instance_eval(&d) } }
+      end
+
+      map.instance_eval(&definition)
     end
 
     def self.build_sub_routes(parent, property, map)

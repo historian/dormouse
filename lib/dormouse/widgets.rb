@@ -10,17 +10,18 @@ class Dormouse::Widgets < Array
   end
 
   def render(view, object, options={})
-    self.inject('') do |html, property|
-      html.concat render_widget(property, view, object, options)
-      html
+    widgets = self.map do |property|
+      render_widget(property, view, object, options)
     end
+
+    widgets.join('')
   end
 
 private
 
   def render_widget(property, view, object, options={})
     locals = options.merge(
-      :value    => object.__send__(property.names.param),
+      :value    => object.__send__(property.name),
       :object   => object,
       :property => property,
       :manifest => property.manifest,
@@ -29,9 +30,7 @@ private
 
     partial = "#{property.manifest.style}/widgets/#{property.type}"
 
-    view.instance_eval do
-      render :partial => partial, :locals => locals
-    end
+    view.send(:render, :partial => partial, :locals => locals)
   end
 
 end

@@ -6,6 +6,7 @@ module Dormouse
     :controller_superclass => 'ApplicationController',
     :extensions            => %w(
       Dormouse::Extensions::Paperclip
+      Dormouse::Extensions::BlackbirdI18n
       Dormouse::Extensions::LalalaAssets ),
     :cms_name              => 'Administration',
     :resources             => [],
@@ -34,8 +35,8 @@ module Dormouse
     options.default_namespace
   end
 
-  def self.extentions
-    options.extentions
+  def self.extensions
+    options.extensions
   end
 
 end

@@ -13,8 +13,6 @@ class Dormouse::Manifest
     @properties = Dormouse::OrderedHash.new
     @names      = Dormouse::Names.new(@resource, nil, nil, false)
     @urls       = Dormouse::URLs.new(@names, nil, @namespace)
-    @widgets    = Dormouse::Widgets.new(self)
-    @sidebars   = Dormouse::Sidebars.new(self)
 
     generate_default_properties
 
@@ -31,6 +29,8 @@ class Dormouse::Manifest
     self[:created_at].populate(:hidden => true) if self[:created_at]
     self[:updated_at].populate(:hidden => true) if self[:updated_at]
     self[:position].populate(:hidden => true)   if self[:position]
+
+    reset!
   end
 
   # the resource class (must be an instance of ActiveRecord::Base)
@@ -103,7 +103,8 @@ class Dormouse::Manifest
 
   # reset any cached values.
   def reset!
-    @widgets = nil
+    @widgets  = Dormouse::Widgets.new(self)
+    @sidebars = Dormouse::Sidebars.new(self)
     self
   end
 
@@ -122,9 +123,10 @@ class Dormouse::Manifest
   # Push a new property.
   # @return [Dormouse::Property]
   def push(property_or_name)
-    property = property_or_name
     if String === property_or_name or Symbol === property_or_name
       property = Dormouse::Property.new(self, property_or_name)
+    else
+      property = property_or_name
     end
     @properties[property.names.id] = property
     property
@@ -184,6 +186,10 @@ private
   end
 
   def generate_default_properties
+    if !resource.attribute_methods_generated?
+      resource.define_attribute_methods
+    end
+
     resource.content_columns.each do |column|
       property = Dormouse::Property.new(self, column, resource.table_name)
       @properties[property.names.id] = property
@@ -194,9 +200,9 @@ private
       @properties[property.names.association_id] = property
     end
 
-    (Dormouse.options[:extensions] || []).each do |extention|
-      extention = (Class === extention ? extention : extention.constantize)
-      extention.define(self) if extention.respond_to?(:call)
+    (Dormouse.extensions || []).each do |extention|
+      extention = extention.to_s.constantize
+      extention.define(self) if extention.respond_to?(:define)
     end
 
   rescue ActiveRecord::StatementInvalid => e

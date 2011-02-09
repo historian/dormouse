@@ -11,11 +11,11 @@ module Dormouse
   require 'dormouse/urls'
   require 'dormouse/dsl'
   require 'dormouse/widgets'
-  require 'dormouse/extensions'
   require 'dormouse/sidebars'
-  
+
   module Extensions
     require 'dormouse/extensions/paperclip'
+    require 'dormouse/extensions/blackbird_i18n'
     require 'dormouse/extensions/lalala_assets'
   end
 
